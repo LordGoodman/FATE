@@ -48,7 +48,7 @@ done;
 # build modules according to the dir-tree
 cd ${current_dir}
 
-for module in "federation" "proxy" "roll" "python"
+for module in "federation" "proxy" "roll" "python" "meta-service" "serving-service"
 do
 
     echo "### START BUILDING ${module^^} ###"
@@ -78,11 +78,3 @@ cp -r ./eggroll/storage/storage-service-cxx/third_party/lmdb-safe/* ./docker/clu
 docker build --build-arg PREFIX=${PREFIX} --build-arg BASE_TAG=${BASE_TAG} --build-arg BUILDER_TAG=${BUILDER_TAG} -t ${PREFIX}/egg:${TAG} -f ./docker/cluster/modules/egg/Dockerfile ./docker/cluster/modules/egg
 echo "### FINISH BUILDING EGG ###"
 echo ""
-
-#### build serving-server
-##echo "### START BUILDING FATE SERVING ###"
-##
-##cp -r ./cluster-deploy/example-dir-tree/serving-server/* ./docker/cluster/modules/serving-server/
-##docker build --build-arg PREFIX=${PREFIX} --build-arg BASE_TAG=${BASE_TAG} -t fate-serving-server -f ./docker/cluster/modules/serving-server/Dockerfile ./docker/cluster/modules/serving-server
-##
-##echo "### FINISH BUILDING FATE SERVING ###"

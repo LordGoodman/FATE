@@ -1,6 +1,5 @@
 ARG PREFIX=prefix
 ARG BASE_TAG=tag
-
 FROM ${PREFIX}/base-image:${BASE_TAG}
 
 RUN mkdir -p /data/projects/fate
