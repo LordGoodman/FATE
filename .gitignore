@@ -27,3 +27,4 @@ __pycache__
 /logs/
 /jobs/
 /audit/
+/cluster-deploy/example-dir-tree/
