@@ -28,3 +28,11 @@ __pycache__
 /jobs/
 /audit/
 /cluster-deploy/example-dir-tree/
+/docker/cluster/modules/
+!/docker/cluster/modules/federation/Dockerfile
+!/docker/cluster/modules/egg/Dockerfile
+!/docker/cluster/modules/roll/Dockerfile
+!/docker/cluster/modules/proxy/Dockerfile
+!/docker/cluster/modules/python/Dockerfile
+!/docker/cluster/modules/meta-service/Dockerfile
+!/docker/cluster/modules/serving-server/Dockerfile
