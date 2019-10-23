@@ -87,5 +87,11 @@ $ docker load -i third-party.images.tar.gz
 $ docker load -i fate.images.tar.gz
 ```
 
+Once the images are loaded, copy the `tag_for_harbor.sh` and `build_cluster_docker.sh` from the build machine.After that, use the following command to tag images and push images to the Harbor server:
+```bash
+docker login $harbor_address
+bash push_to_harbor.sh $harbor_address
+```
+
 ### Deployment
 To deploy FATE using Docker Compose and Kubernetes, please refer to [KubeFATE](https://github.com/FederatedAI/KubeFATE) for more details
