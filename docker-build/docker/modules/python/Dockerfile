@@ -1,5 +1,5 @@
 # runtime envrionment
-FROM centos-base
+FROM fate-base:1.1
 
 COPY  fate_flow /data/projects/fate/fate_flow
 COPY  arch /data/projects/fate/arch
@@ -13,4 +13,4 @@ RUN cd /data/projects/fate/ && \
 WORKDIR /data/projects/fate
 
 ENV PYTHONPATH=/data/projects/fate
-CMD cd /data/projects/fate/fate_flow && python3 fate_flow_server.py
+CMD cd /data/projects/fate/fate_flow && python fate_flow_server.py

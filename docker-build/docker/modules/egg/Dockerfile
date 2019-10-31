@@ -7,7 +7,7 @@ COPY eggroll-storage-service-cxx-1.1.tar.gz  /data/projects/fate/eggroll/
 COPY third_party_eggrollv1.tar.gz /data/projects/fate/eggroll/
 
 RUN rpm --rebuilddb && yum install -y which && cd /data/projects/fate/eggroll/ && \
-    mkdir api computing storage && \
+    mkdir -p api computing/logs storage && \
 	tar -C ./ -xvf eggroll-egg-1.1.tar.gz && rm eggroll-egg-1.1.tar.gz && \
 	tar -C ./computing -xvf eggroll-computing-1.1.tar.gz && rm eggroll-computing-1.1.tar.gz && \
 	tar -C ./api -xvf eggroll-api-1.1.tar.gz && rm eggroll-api-1.1.tar.gz && \ 
