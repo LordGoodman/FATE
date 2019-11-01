@@ -2,7 +2,7 @@ FROM mcr.microsoft.com/java/jre:8u192-zulu-alpine
 
 RUN mkdir -p /data/projects/fate
 
-COPY cluster-deploy/packages/fate-proxy-1.1.tar.gz /data/projects/fate/proxy/fate-proxy-1.1.tar.gz
+COPY fate-proxy-1.1.tar.gz /data/projects/fate/proxy/fate-proxy-1.1.tar.gz
 
 RUN cd /data/projects/fate/proxy/ && \
     tar -xzf fate-proxy-1.1.tar.gz && \

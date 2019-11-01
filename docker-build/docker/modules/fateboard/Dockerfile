@@ -1,7 +1,7 @@
 FROM mcr.microsoft.com/java/jre:8u192-zulu-alpine
 
 RUN mkdir -p /data/projects/fate
-COPY cluster-deploy/packages/fateboard-1.1.jar /data/projects/fate/fateboard/fateboard-1.1.jar
+COPY fateboard-1.1.jar /data/projects/fate/fateboard/fateboard-1.1.jar
 EXPOSE 8080
 
 CMD cd /data/projects/fate/fateboard && \

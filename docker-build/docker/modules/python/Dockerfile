@@ -1,5 +1,7 @@
 # runtime envrionment
-FROM fate-base:1.1
+ARG PREFIX=prefix
+ARG BASE_TAG=tag
+FROM ${PREFIX}/base-image:${BASE_TAG}
 
 COPY  fate_flow /data/projects/fate/fate_flow
 COPY  arch /data/projects/fate/arch

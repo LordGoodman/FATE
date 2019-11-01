@@ -15,5 +15,4 @@ RUN yum install -y \
 	yum install -y python36u python36u-libs python36u-devel python36u-pip && \
     cd /data/pips && tar -xf pip-packages-fate-1.1.tar.gz && cd pip-packages-fate-1.1 && \
 	rm tensorboard-1.14.0-py3-none-any.whl && rm setuptools-41.4.0-py2.py3-none-any.whl && \
-    pip3 install ./* && \
-    rm -f /bin/python && ln -s /bin/python3 /bin/python
+    pip3 install ./*

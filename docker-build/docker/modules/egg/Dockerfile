@@ -1,4 +1,6 @@
-FROM centos-base
+ARG PREFIX=prefix
+ARG BASE_TAG=tag
+FROM ${PREFIX}/base-image:${BASE_TAG}
 
 COPY eggroll-computing-1.1.tar.gz /data/projects/fate/eggroll/
 COPY eggroll-api-1.1.tar.gz /data/projects/fate/eggroll/
@@ -18,7 +20,8 @@ RUN rpm --rebuilddb && yum install -y which && cd /data/projects/fate/eggroll/ &
     sed -i "34s#LDFLAGS += -L.*#LDFLAGS += -L/data/projects/fate/eggroll/storage/third_party/lib -llmdb -lboost_system -lboost_filesystem -lglog -lgpr#g" ./Makefile && \
     sed -i "36s#PROTOC =.*#PROTOC = /data/projects/fate/eggroll/storage/third_party/bin/protoc#g" ./Makefile && \
     sed -i "37s#GRPC_CPP_PLUGIN =.*#GRPC_CPP_PLUGIN = /data/projects/fate/eggroll/storage/third_party/bin/grpc_cpp_plugin#g" ./Makefile && \
-    make
+    make && \
+    rm -f /bin/python && ln -s /bin/python3 /bin/python
 
 CMD cd /data/projects/fate/eggroll/storage && \
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:/data/projects/fate/eggroll/storage/third_party/lib && \
