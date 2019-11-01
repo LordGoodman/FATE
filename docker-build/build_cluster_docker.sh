@@ -44,7 +44,7 @@ buildModule() {
   ln ${source_code_dir}/cluster-deploy/packages/eggroll-storage-service-cxx-1.1.tar.gz ${source_code_dir}/docker-build/docker/modules/egg/eggroll-storage-service-cxx-1.1.tar.gz
   ln ${source_code_dir}/cluster-deploy/packages/third_party_eggrollv1.tar.gz ${source_code_dir}/docker-build/docker/modules/egg/third_party_eggrollv1.tar.gz
 
-  for module in "federation" "proxy" "roll" "meta-service" "fateboard" "egg" "proxy"
+  for module in "federation" "proxy" "roll" "meta-service" "fateboard" "egg" "python"
   do
       echo "### START BUILDING ${module^^} ###"
       docker build --build-arg PREFIX=${PREFIX} --build-arg BASE_TAG=${BASE_TAG} -t ${PREFIX}/${module}:${TAG} -f ${source_code_dir}/docker-build/docker/modules/${module}/Dockerfile ${source_code_dir}/docker-build/docker/modules/${module}
@@ -105,7 +105,7 @@ package() {
   eggroll_source_code_dir=${source_code_dir}/eggroll
   cd ${eggroll_source_code_dir}
   echo "[INFO] Compiling eggroll"
-  docker run -v ${eggroll_source_code_dir}:/data/projects/fate/eggroll --entrypoint="" maven:3.6-jdk-8 /bin/bash -c "cd /data/projects/fate/eggroll && mvn clean package -DskipTests"
+  docker run -u $(id -u):$(id -g) -v ${eggroll_source_code_dir}:/data/projects/fate/eggroll --entrypoint="" maven:3.6-jdk-8 /bin/bash -c "cd /data/projects/fate/eggroll && mvn clean package -DskipTests"
   echo "[INFO] Compile eggroll done"
 
   echo "[INFO] Packaging eggroll"
@@ -174,9 +174,9 @@ package() {
 
   echo "[INFO] Compiling fate"
   cd ${source_code_dir}/fateboard/
-  docker run -v ${source_code_dir}/fateboard:/data/projects/fate/fateboard --entrypoint="" maven:3.6-jdk-8 /bin/bash -c "cd /data/projects/fate/fateboard && mvn clean package -DskipTests"
+  docker run -u $(id -u):$(id -g) -v ${source_code_dir}/fateboard:/data/projects/fate/fateboard --entrypoint="" maven:3.6-jdk-8 /bin/bash -c "cd /data/projects/fate/fateboard && mvn clean package -DskipTests"
   cd ${source_code_dir}/arch/
-  docker run -v ${source_code_dir}:/data/projects/fate --entrypoint="" maven:3.6-jdk-8 /bin/bash -c "cd /data/projects/fate/arch && mvn clean package -DskipTests"
+  docker run -u $(id -u):$(id -g) -v ${source_code_dir}:/data/projects/fate --entrypoint="" maven:3.6-jdk-8 /bin/bash -c "cd /data/projects/fate/arch && mvn clean package -DskipTests"
   echo "[INFO] Compile fate done"
 
   echo "[INFO] Packaging fate"
