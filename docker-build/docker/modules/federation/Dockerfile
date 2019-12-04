@@ -1,9 +1,11 @@
-FROM mcr.microsoft.com/java/jre:8u192-zulu-alpine
 
-RUN mkdir -p /data/projects/fate
+FROM nvidia/cuda:10.1-devel-centos7
+
 COPY fate-federation-1.1.tar.gz /data/projects/fate/federation/fate-federation-1.1.tar.gz
 
-RUN cd /data/projects/fate/federation/ && \
+RUN rpm --rebuilddb && \
+    yum install -y which java-1.8.0-openjdk java-1.8.0-openjdk-devel && \
+    cd /data/projects/fate/federation/ && \
     tar -xzf fate-federation-1.1.tar.gz && \
     rm fate-federation-1.1.tar.gz && \
     ln -s fate-federation-1.1.jar fate-federation.jar

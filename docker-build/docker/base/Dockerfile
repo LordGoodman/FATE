@@ -1,4 +1,4 @@
-FROM centos:centos7.2.1511
+FROM nvidia/cuda:10.1-devel-centos7
 
 COPY pip-packages-fate-1.1.tar.gz /data/projects/python/
 COPY requirements.txt /data/projects/python/
