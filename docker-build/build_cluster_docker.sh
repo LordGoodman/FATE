@@ -18,7 +18,7 @@ version=`grep "FATE=" fate.env | awk -F '=' '{print $2}'`
 package_dir_name="FATE_install_"${version}
 package_dir=${source_dir}/cluster-deploy/${package_dir_name}
 
-PREFIX="federatedai"
+PREFIX="lordgoodman"
 TAG="${version}-release"
 BASE_TAG=${TAG}
 source ${WORKINGDIR}/.env
