@@ -27,4 +27,4 @@ jobs:
 
       - name: Push image
         run: |
-          bash docker-build/build_cluster_docker.sh pushImage
+          bash docker-build/build_cluster_docker.sh push
