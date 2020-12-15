@@ -19,17 +19,17 @@ SOURCE_DIR=$(
 # fetch package info
 cd "${SOURCE_DIR}"
 
-if [ ${VERSION} != "" ]; then
-        version=${VERSION}
+if [ -z "$VERSION" ]; then
+        version="$(grep "FATE=" fate.env | awk -F '=' '{print $2}')-release"
 else
-        version=$(grep "FATE=" fate.env | awk -F '=' '{print $2}')
+        version=${VERSION}
 fi
 
 package_dir_name="FATE_install_"${version}
 package_dir=${SOURCE_DIR}/cluster-deploy/${package_dir_name}
 
 PREFIX="lordgoodman"
-TAG="${version}-release"
+TAG=${version}
 BASE_TAG=${TAG}
 source ${WORKING_DIR}/.env
 
