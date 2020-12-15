@@ -23,7 +23,7 @@ jobs:
         id: prepare-the-tag 
         run: |
           # strip git ref prefix from version
-          export TAG=""
+          TAG=""
           VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
           if [ $VERSION = "test-build-and-push" ]; then
             TAG=latest
@@ -32,10 +32,14 @@ jobs:
           echo "::set-output name=tag::$TAG"
 
       - name: Build image
-        run: TAG=${{ steps.prepare-the-tag.output.tag }} bash docker-build/build_cluster_docker.sh all
+        run: echo ${{ steps.prepare-the-tag.outputs.tag }} 
+        #TAG=${{ steps.prepare-the-tag.output.tag }} 
+        #bash docker-build/build_cluster_docker.sh all
 
       - name: Log into DockerHub
         run: docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Push image
-        run: TAG=${{ steps.prepare-the-tag.output.tag }} bash docker-build/build_cluster_docker.sh push
+        run: echo {{ steps.prepare-the-tag.outputs.tag }} 
+        #TAG=${{ steps.prepare-the-tag.output.tag }} 
+        #bash docker-build/build_cluster_docker.sh push
