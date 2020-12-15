@@ -19,7 +19,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Prepare the TAG 
+      - name: Prepare the TAG
+        id: prepare-the-tag 
         run: |
           # strip git ref prefix from version
           export TAG=""
