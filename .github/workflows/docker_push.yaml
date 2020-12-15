@@ -33,10 +33,9 @@ jobs:
       - name: Push image
         run: |
           # strip git ref prefix from version
-          export VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          export TAG=""
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
           if [ $VERSION = "test-build-and-push" ]; then
-            VERSION=latest
-          else 
-            VERSION=""
+            TAG=latest
           fi
           bash docker-build/build_cluster_docker.sh push

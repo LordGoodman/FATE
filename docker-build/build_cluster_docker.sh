@@ -19,17 +19,15 @@ SOURCE_DIR=$(
 # fetch package info
 cd "${SOURCE_DIR}"
 
-if [ -z "$VERSION" ]; then
-        version="$(grep "FATE=" fate.env | awk -F '=' '{print $2}')-release"
-else
-        version=${VERSION}
-fi
-
+version="$(grep "FATE=" fate.env | awk -F '=' '{print $2}')"
 package_dir_name="FATE_install_"${version}
 package_dir=${SOURCE_DIR}/cluster-deploy/${package_dir_name}
 
 PREFIX="lordgoodman"
-TAG=${version}
+if [ -z "$TAG" ]; then
+    TAG="${version}-release"
+fi
+
 BASE_TAG=${TAG}
 source ${WORKING_DIR}/.env
 
@@ -39,7 +37,7 @@ echo "[INFO] version tag: "${version_tag}
 echo "[INFO] Package output dir is "${package_dir}
 echo "[INFO] image prefix is: "${PREFIX}
 echo "[INFO] image tag is: "${TAG}
-echo "[INFO] bash image tag is: "${BASE_TAG}
+echo "[INFO] base image tag is: "${BASE_TAG}
 
 eggroll_git_url=$(grep -A 3 '"eggroll"' .gitmodules | grep 'url' | awk -F '= ' '{print $2}')
 eggroll_git_branch=$(grep -A 3 '"eggroll"' .gitmodules | grep 'branch' | awk -F '= ' '{print $2}')
