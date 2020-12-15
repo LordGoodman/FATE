@@ -28,7 +28,7 @@ jobs:
       - name: Push image
         run: |
           # strip git ref prefix from version
-          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          export VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
           if [ $VERSION == "test-build-and-push" ]; then
             VERSION=latest
           else 
