@@ -28,7 +28,7 @@ jobs:
             TAG=latest
           fi
 
-          "::set-output name=tag::$TAG"
+          Write-Output "::set-output name=tag::$TAG"
 
       - name: Build image
         run: TAG=${{ steps.prepare-the-tag.output.tag }} bash docker-build/build_cluster_docker.sh all
