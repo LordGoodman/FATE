@@ -19,7 +19,7 @@ SOURCE_DIR=$(
 # fetch package info
 cd "${SOURCE_DIR}"
 
-if [ "${VERSION}" != "" ]; then
+if [ ${VERSION} != "" ]; then
         version=${VERSION}
 else
         version=$(grep "FATE=" fate.env | awk -F '=' '{print $2}')

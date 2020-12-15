@@ -34,7 +34,7 @@ jobs:
         run: |
           # strip git ref prefix from version
           export VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-          if [ $VERSION == "test-build-and-push" ]; then
+          if [ $VERSION = "test-build-and-push" ]; then
             VERSION=latest
           else 
             VERSION=""
