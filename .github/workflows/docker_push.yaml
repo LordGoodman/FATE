@@ -29,5 +29,9 @@ jobs:
         run: |
           # strip git ref prefix from version
           VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-          [ $VERSION == "test-build-and-push" ] && VERSION=latest
+          if [ $VERSION == "test-build-and-push" ]; then
+            VERSION=latest
+          else 
+            VERSION=""
+          fi
           bash docker-build/build_cluster_docker.sh push
