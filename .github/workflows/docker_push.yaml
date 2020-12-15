@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Prepare the TAG
-        id: prepare-the-tag 
+        id: prepare-the-tag
         run: |
           # strip git ref prefix from version
           TAG=""
@@ -32,7 +32,7 @@ jobs:
           echo "::set-output name=tag::$TAG"
 
       - name: Build image
-        run: TAG=${{steps.prepare-the-tag.outputs.tag}} bash docker-build/build_cluster_docker.sh all 
+        run: TAG=${{steps.prepare-the-tag.outputs.tag}} bash docker-build/build_cluster_docker.sh all
 
       - name: Log into DockerHub
         run: docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
