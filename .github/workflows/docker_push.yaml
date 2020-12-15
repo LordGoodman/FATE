@@ -19,10 +19,16 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Check branches
+      - name: Prepare the TAG 
         run: |
+          # strip git ref prefix from version
+          export TAG=""
           VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-          echo $VERSION
+          if [ $VERSION = "test-build-and-push" ]; then
+            TAG=latest
+          fi
+
+          echo The TAG is $TAG
 
       - name: Build image
         run: bash docker-build/build_cluster_docker.sh all
@@ -31,11 +37,4 @@ jobs:
         run: docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Push image
-        run: |
-          # strip git ref prefix from version
-          export TAG=""
-          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-          if [ $VERSION = "test-build-and-push" ]; then
-            TAG=latest
-          fi
-          bash docker-build/build_cluster_docker.sh push
+        run: bash docker-build/build_cluster_docker.sh push

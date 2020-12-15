@@ -32,12 +32,11 @@ BASE_TAG=${TAG}
 source ${WORKING_DIR}/.env
 
 echo "[INFO] Build info"
-echo "[INFO] version: "${version}
-echo "[INFO] version tag: "${version_tag}
+echo "[INFO] Version: "${version}
 echo "[INFO] Package output dir is "${package_dir}
-echo "[INFO] image prefix is: "${PREFIX}
-echo "[INFO] image tag is: "${TAG}
-echo "[INFO] base image tag is: "${BASE_TAG}
+echo "[INFO] Image prefix is: "${PREFIX}
+echo "[INFO] Image tag is: "${TAG}
+echo "[INFO] Base image tag is: "${BASE_TAG}
 
 eggroll_git_url=$(grep -A 3 '"eggroll"' .gitmodules | grep 'url' | awk -F '= ' '{print $2}')
 eggroll_git_branch=$(grep -A 3 '"eggroll"' .gitmodules | grep 'branch' | awk -F '= ' '{print $2}')
