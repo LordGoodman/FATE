@@ -3,8 +3,8 @@ name: Docker
 on:
   push:
     # Publish `master` as Docker `latest` image.
-    # branches:
-    #  - master
+    branches:
+      - test-build-and-push
 
     # Publish `v1.2.3` tags as releases.
     tags:
@@ -23,8 +23,11 @@ jobs:
         run: bash docker-build/build_cluster_docker.sh all
 
       - name: Log into dockerhub
-        run: docker login -u ${{ secret.DOCKERHUB_USERNAME }} -p ${{ secret.DOCKERHUB_TOKEN }}
+        run: docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Push image
         run: |
+          # strip git ref prefix from version
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          [ $VERSION == "test-build-and-push" ] && VERSION=latest
           bash docker-build/build_cluster_docker.sh push
