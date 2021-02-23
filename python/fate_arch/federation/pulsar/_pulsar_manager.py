@@ -173,10 +173,10 @@ class PulsarManager():
         )
         return response
 
-    def delete_namespace(self, tenant: str, namespace: str):
+    def delete_namespace(self, tenant: str, namespace: str, force: bool = False):
         session = self._create_session()
         response = session.delete(
-            self.service_url + 'namespace/{}/{}'.format(tenant, namespace)
+            self.service_url + 'namespace/{}/{}?force={}'.format(tenant, namespace, str(force).lower())
         )
         return response
 

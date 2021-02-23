@@ -236,17 +236,12 @@ class Federation(FederationABC):
         LOGGER.debug(f"[{log_str}]finish to remote")
 
     def cleanup(self, parties):
+        # The idead cleanup strategy is to consume all message leave in topics,
+        # and let pulsar cluster to collect the used topics.
+
+        # Now we just force to remove the namespace
         LOGGER.debug("[pulsar.cleanup]start to cleanup...")
-        for party in parties:
-            vhost = self._get_vhost(party)
-            LOGGER.debug(
-                f"[pulsar.cleanup]start to cleanup vhost {vhost}...")
-            self._rabbit_manager.delete_vhost(vhost=vhost)
-            LOGGER.debug(f"[pulsar.cleanup]cleanup vhost {vhost} done")
-        if self._mq.union_name:
-            LOGGER.debug(
-                f"[pulsar.cleanup]clean user {self._mq.union_name}.")
-            self._rabbit_manager.delete_user(user=self._mq.union_name)
+        self._pulsar_manager.delete_namespace(tenat=DEFAULT_TENANT, namespace=self._session_id, force=True)
 
     def _get_vhost(self, party):
         low, high = (self._party, party) if self._party < party else (
