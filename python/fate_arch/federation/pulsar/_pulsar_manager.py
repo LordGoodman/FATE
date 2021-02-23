@@ -34,8 +34,7 @@ class PulsarManager():
     def _create_session(self):
         # retry mechanism refers to https://urllib3.readthedocs.io/en/latest/reference/urllib3.util.html#urllib3.util.Retry
         retry = Retry(total=MAX_RETRIES, redirect=MAX_REDIRECT,
-                      backoff_factor=BACKOFF_FACTOR,
-                      status_forcelist=[409])
+                      backoff_factor=BACKOFF_FACTOR)
         s = requests.Session()
         # initialize headers
         s.headers.update({'Content-Type': 'application/json'})

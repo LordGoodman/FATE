@@ -336,11 +336,15 @@ class Federation(FederationABC):
                 namespaces = self._pulsar_manager.get_namespace(
                     DEFAULT_TENANT).json()
                 if f"{DEFAULT_TENANT}/{self._session_id}" not in namespaces:
-                    if self._pulsar_manager.create_namespace(DEFAULT_TENANT, self._session_id).ok:
+                    code = self._pulsar_manager.create_namespace(DEFAULT_TENANT, self._session_id).status_code
+                    # according to https://pulsar.apache.org/admin-rest-api/?version=2.7.0&apiversion=v2#operation/getPolicies
+                    # return 409 if existed
+                    # return 204 if ok
+                    if code == 204 or code == 409:
                         LOGGER.debug(
                             "successfully create pulsar namespace: %s", self._session_id)
                     else:
-                        raise Exception("unable to create pulsar namespace")
+                        raise Exception("unable to create pulsar namespace with status code: {}".format(code))
 
                 self._topic_map[topic_key] = topic_pair
                 # TODO: check federated queue status
