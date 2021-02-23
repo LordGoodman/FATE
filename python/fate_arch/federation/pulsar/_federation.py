@@ -120,17 +120,20 @@ class Federation(FederationABC):
         LOGGER.debug(f"[{log_str}]start to get")
 
         _name_dtype_keys = [_SPLIT_.join(
-            [party.role, party.party_id, name]) for party in parties]
+            [party.role, party.party_id, name, tag, 'get']) for party in parties]
 
         if _name_dtype_keys[0] not in self._name_dtype_map:
             party_topic_infos = self._get_party_topic_infos(
                 parties, dtype=NAME_DTYPE_TAG)
-            channel_infos = self._get_channels(party_topic_infos=party_topic_infos)
+            channel_infos = self._get_channels(
+                party_topic_infos=party_topic_infos)
             rtn_dtype = []
             for i, info in enumerate(channel_infos):
-                obj = self._receive_obj(info, name, tag=NAME_DTYPE_TAG)
+                obj = self._receive_obj(
+                    info, name, tag=_SPLIT_.join([tag, NAME_DTYPE_TAG]))
                 rtn_dtype.append(obj)
-                LOGGER.debug(f"[pulsar.get] name: {name}, dtype: {obj}")
+                LOGGER.debug(
+                    f"[pulsar.get] _name_dtype_keys: {_name_dtype_keys}, dtype: {obj}")
 
             for k in _name_dtype_keys:
                 if k not in self._name_dtype_map:
@@ -182,7 +185,7 @@ class Federation(FederationABC):
         log_str = f"[pulsar.remote](name={name}, tag={tag}, parties={parties})"
 
         _name_dtype_keys = [_SPLIT_.join(
-            [party.role, party.party_id, name]) for party in parties]
+            [party.role, party.party_id, name, tag, 'remote']) for party in parties]
 
         # tell the receiver what sender is going to send.
 
@@ -199,7 +202,7 @@ class Federation(FederationABC):
 
             LOGGER.debug(
                 f"[pulsar.remote] _name_dtype_keys: {_name_dtype_keys}, dtype: {body}")
-            self._send_obj(name=name, tag=NAME_DTYPE_TAG,
+            self._send_obj(name=name, tag=_SPLIT_.join([tag, NAME_DTYPE_TAG]),
                            data=p_dumps(body), channel_infos=channel_infos)
 
             for k in _name_dtype_keys:
@@ -332,7 +335,7 @@ class Federation(FederationABC):
 
                 # init pulsar namespace
                 namespaces = self._pulsar_manager.get_namespace(
-                   DEFAULT_TENANT).json()
+                    DEFAULT_TENANT).json()
                 if f"{DEFAULT_TENANT}/{self._session_id}" not in namespaces:
                     if self._pulsar_manager.create_namespace(DEFAULT_TENANT, self._session_id).ok:
                         LOGGER.debug(
