@@ -9,9 +9,9 @@ import requests
 
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
+from fate_arch.common.log import getLogger
 
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger()
+logger = getLogger()
 
 MAX_RETRIES = 10
 MAX_REDIRECT = 5
@@ -34,7 +34,8 @@ class PulsarManager():
     def _create_session(self):
         # retry mechanism refers to https://urllib3.readthedocs.io/en/latest/reference/urllib3.util.html#urllib3.util.Retry
         retry = Retry(total=MAX_RETRIES, redirect=MAX_REDIRECT,
-                      backoff_factor=BACKOFF_FACTOR)
+                      backoff_factor=BACKOFF_FACTOR,
+                      status_forcelist=[409])
         s = requests.Session()
         # initialize headers
         s.headers.update({'Content-Type': 'application/json'})
@@ -176,7 +177,9 @@ class PulsarManager():
     def delete_namespace(self, tenant: str, namespace: str, force: bool = False):
         session = self._create_session()
         response = session.delete(
-            self.service_url + 'namespace/{}/{}?force={}'.format(tenant, namespace, str(force).lower())
+            self.service_url +
+            'namespace/{}/{}?force={}'.format(tenant,
+                                              namespace, str(force).lower())
         )
         return response
 

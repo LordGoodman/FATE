@@ -89,8 +89,10 @@ class Federation(FederationABC):
             host=host, port=mng_port, runtime_config=pulsar_run)
 
         # init tenant
-        pulsar_manager.create_tenant(
-            tenant=DEFAULT_TENANT, admins=[], clusters=['standalone'])
+        tenant = pulsar_manager.get_tenant(tenant=DEFAULT_TENANT).json()
+        if tenant.get('allowedClusters') is None:
+            pulsar_manager.create_tenant(
+                tenant=DEFAULT_TENANT, admins=[], clusters=['standalone'])
 
         route_table_path = pulsar_config.get("route_table")
         if route_table_path is None:
@@ -241,7 +243,8 @@ class Federation(FederationABC):
 
         # Now we just force to remove the namespace
         LOGGER.debug("[pulsar.cleanup]start to cleanup...")
-        self._pulsar_manager.delete_namespace(tenat=DEFAULT_TENANT, namespace=self._session_id, force=True)
+        self._pulsar_manager.delete_namespace(
+            tenat=DEFAULT_TENANT, namespace=self._session_id, force=True)
 
     def _get_vhost(self, party):
         low, high = (self._party, party) if self._party < party else (
@@ -295,6 +298,7 @@ class Federation(FederationABC):
                 # init pulsar cluster
                 cluster = self._pulsar_manager.get_cluster(
                     party.party_id).json()
+
                 if cluster.get('brokerServiceUrl') is None and cluster.get('brokerServiceUrlTls') is None:
                     LOGGER.debug(
                         "pulsar cluster with name %s does not exist, creating...", party.party_id)
