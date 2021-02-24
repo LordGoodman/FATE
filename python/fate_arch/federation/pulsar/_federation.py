@@ -244,7 +244,7 @@ class Federation(FederationABC):
         # Now we just force to remove the namespace
         LOGGER.debug("[pulsar.cleanup]start to cleanup...")
         self._pulsar_manager.delete_namespace(
-            tenat=DEFAULT_TENANT, namespace=self._session_id, force=True)
+            tenant=DEFAULT_TENANT, namespace=self._session_id, force=True)
 
     def _get_vhost(self, party):
         low, high = (self._party, party) if self._party < party else (
@@ -336,7 +336,8 @@ class Federation(FederationABC):
                 namespaces = self._pulsar_manager.get_namespace(
                     DEFAULT_TENANT).json()
                 if f"{DEFAULT_TENANT}/{self._session_id}" not in namespaces:
-                    code = self._pulsar_manager.create_namespace(DEFAULT_TENANT, self._session_id).status_code
+                    code = self._pulsar_manager.create_namespace(
+                        DEFAULT_TENANT, self._session_id).status_code
                     # according to https://pulsar.apache.org/admin-rest-api/?version=2.7.0&apiversion=v2#operation/getPolicies
                     # return 409 if existed
                     # return 204 if ok
@@ -344,7 +345,8 @@ class Federation(FederationABC):
                         LOGGER.debug(
                             "successfully create pulsar namespace: %s", self._session_id)
                     else:
-                        raise Exception("unable to create pulsar namespace with status code: {}".format(code))
+                        raise Exception(
+                            "unable to create pulsar namespace with status code: {}".format(code))
 
                 self._topic_map[topic_key] = topic_pair
                 # TODO: check federated queue status
@@ -481,8 +483,8 @@ class Federation(FederationABC):
                 print(
                     f'[pulsar._partition_send]The size of message is: {datastream.get_size()}')
                 message_key_idx += 1
-                message_key = _SPLIT_.join(
-                    base_message_key, str(message_key_idx))
+                message_key = _SPLIT_.join([
+                    base_message_key, str(message_key_idx)])
                 self._send_kv(name=name, tag=tag, data=datastream.get_data().encode(), channel_infos=channel_infos,
                               partition_size=-1, partitions=partitions, message_key=message_key)
                 datastream.clear()
