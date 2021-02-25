@@ -303,12 +303,12 @@ class Federation(FederationABC):
                     LOGGER.debug(
                         "pulsar cluster with name %s does not exist, creating...", party.party_id)
                     host = self._mq.route_table.get(
-                        int(party.party_id)).get("host")
+                        int(party.party_id)).get('host')
                     port = self._mq.route_table.get(
-                        int(party.party_id)).get("port")
+                        int(party.party_id)).get('port', '6650')
 
                     sslPort = self._mq.route_table.get(
-                        int(party.party_id).get("sslPort")
+                        int(party.party_id).get('sslPort', '6651')
                     )
 
                     broker_url = f"pulsar://{host}:{port}"
