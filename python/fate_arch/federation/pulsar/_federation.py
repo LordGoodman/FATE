@@ -308,7 +308,7 @@ class Federation(FederationABC):
                         int(party.party_id)).get('port', '6650')
 
                     sslPort = self._mq.route_table.get(
-                        int(party.party_id).get('sslPort', '6651')
+                        int(party.party_id)).get('sslPort', '6651')
                     )
 
                     broker_url = f"pulsar://{host}:{port}"
