@@ -161,8 +161,19 @@ class PulsarManager():
     def set_clusters_to_namespace(self, tenant: str, namespace: str, clusters: list):
         session = self._create_session()
         response = session.post(
-            self.service_url + 'namespaces/{}/{}'.format(tenant, namespace), data=clusters
+            self.service_url + 'namespaces/{}/{}/replication'.format(tenant, namespace), data=clusters
         )
+
+        return response
+
+    def get_cluster_from_namespace(self, tenant: str, namespace: str):
+        session = self._create_session()
+        response = session.get(
+            self.service_url +
+            'namespaces/{}/{}/replication'.format(tenant, namespace)
+        )
+
+        return response
 
     def delete_namespace(self, tenant: str, namespace: str, force: bool = False):
         session = self._create_session()

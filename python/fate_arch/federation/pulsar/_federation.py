@@ -340,7 +340,8 @@ class Federation(FederationABC):
                                 'successfully update tenant with cluster: %s', party.party_id)
                         else:
                             raise Exception('unable to update tenant')
-
+                        
+                # TODO: remove this for the loop
                 # init pulsar namespace
                 namespaces = self._pulsar_manager.get_namespace(
                     DEFAULT_TENANT).json()
@@ -363,19 +364,20 @@ class Federation(FederationABC):
                         raise Exception(
                             "unable to create pulsar namespace with status code: {}".format(code))
                 # update party to namespace
-                elif party.party_id not in namespaces.get('replication_clusters'):
-                    clusters = namespaces.get(
-                        'replication_clusters').append(party.party_id)
-                    if self._pulsar_manager.set_clusters_to_namespace(DEFAULT_TENANT, self._session_id, clusters).ok:
-                        LOGGER.debug(
-                            'successfully set clusters: {}  to pulsar namespace: {}'.format(
-                                clusters, self._session_id)
-                        )
-                    else:
-                        raise Exception(
-                            'unable to update clusters: {} to pulsar namespaces: {}'.format(
-                                clusters, self._session_id)
-                        )
+                else:
+                    clusters =self._pulsar_manager.get_cluster_from_namespace(DEFAULT_TENANT, self._session_id).json()
+                    if party.party_id not in clusters:
+                        clusters.append(party.party_id)
+                        if self._pulsar_manager.set_clusters_to_namespace(DEFAULT_TENANT, self._session_id, clusters).ok:
+                            LOGGER.debug(
+                                'successfully set clusters: {}  to pulsar namespace: {}'.format(
+                                    clusters, self._session_id)
+                            )
+                        else:
+                            raise Exception(
+                                'unable to update clusters: {} to pulsar namespaces: {}'.format(
+                                    clusters, self._session_id)
+                            )
 
                 self._topic_map[topic_key] = topic_pair
                 # TODO: check federated queue status
