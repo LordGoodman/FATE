@@ -158,7 +158,8 @@ class MQChannel(object):
         # a tricky way to check alive ;)
         try:
             self._conn.get_topic_partitions('test-alive')
-            self._consumer_receive.consume()
+            self._consumer_receive.receive(timeout_millis=10)
             return True
-        except Exception:
+        except Exception as e:
+            LOGGER.debug('error happend in check alive: %s', e)
             return False
