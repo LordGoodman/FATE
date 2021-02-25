@@ -6,3 +6,4 @@
   host: 192.168.0.3
   port: 6650
   sslPort: 6651
+  local: true

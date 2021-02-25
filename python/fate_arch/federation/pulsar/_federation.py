@@ -295,48 +295,51 @@ class Federation(FederationABC):
                 topic_pair = _TopicPair(
                     namespace=self._session_id, send=send_topic_name, receive=receive_topic_name)
 
-                # init pulsar cluster
-                cluster = self._pulsar_manager.get_cluster(
-                    party.party_id).json()
-
-                if cluster.get('brokerServiceUrl') is None and cluster.get('brokerServiceUrlTls') is None:
+                if self._mq.route_table.get(int(party.party_id)).get('local', False) == True:
                     LOGGER.debug(
-                        "pulsar cluster with name %s does not exist, creating...", party.party_id)
-                    host = self._mq.route_table.get(
-                        int(party.party_id)).get('host')
-                    port = self._mq.route_table.get(
-                        int(party.party_id)).get('port', '6650')
-
-                    sslPort = self._mq.route_table.get(
-                        int(party.party_id)).get('sslPort', '6651')
-                    )
-
-                    broker_url = f"pulsar://{host}:{port}"
-                    broker_url_tls = f"pulsar+ssl://{host}:{port}"
-
-                    if self._pulsar_manager.create_cluster(cluster_name=party.party_id, broker_url=broker_url, broker_url_tls=broker_url_tls).ok:
+                        'connecting to local broker, skipping cluster creation')
+                else:
+                    # init pulsar cluster
+                    cluster = self._pulsar_manager.get_cluster(
+                        party.party_id).json()
+                    if cluster.get('brokerServiceUrl') is None and cluster.get('brokerServiceUrlTls') is None:
                         LOGGER.debug(
-                            "pulsar cluster with name: %s, broker_url: %s crated", party.party_id, broker_url)
-                    elif self._pulsar_manager.update_cluster(cluster_name=party.party_id, broker_url=broker_url, broker_url_tls=broker_url_tls).ok:
-                        LOGGER.debug(
-                            "pulsar cluster with name: %s, broker_url: %s updated", party.party_id, broker_url)
-                    else:
-                        error_message = "unable to create pulsar cluster: %s".format(
-                            party.party_id)
-                        LOGGER.error(error_message)
-                        # I amd little bit torn here, so I just decide to leave this alone.
-                        raise Exception(error_message)
+                            "pulsar cluster with name %s does not exist, creating...", party.party_id)
+                        host = self._mq.route_table.get(
+                            int(party.party_id)).get('host')
+                        port = self._mq.route_table.get(
+                            int(party.party_id)).get('port', '6650')
 
-                # update tenant
-                tenant_info = self._pulsar_manager.get_tenant(
-                    DEFAULT_TENANT).json()
-                if party.party_id not in tenant_info['allowedClusters']:
-                    tenant_info['allowedClusters'].append(party.party_id)
-                    if self._pulsar_manager.update_tenant(DEFAULT_TENANT, tenant_info.get('admins', []), tenant_info.get('allowedClusters',)).ok:
-                        LOGGER.debug(
-                            'successfully update tenant with cluster: %s', party.party_id)
-                    else:
-                        raise Exception('unable to update tenant')
+                        sslPort = self._mq.route_table.get(
+                            int(party.party_id)).get('sslPort', '6651')
+
+                        broker_url = f"pulsar://{host}:{port}"
+                        broker_url_tls = f"pulsar+ssl://{host}:{port}"
+
+                        if self._pulsar_manager.create_cluster(cluster_name=party.party_id, broker_url=broker_url, broker_url_tls=broker_url_tls).ok:
+                            LOGGER.debug(
+                                "pulsar cluster with name: %s, broker_url: %s crated", party.party_id, broker_url)
+                        elif self._pulsar_manager.update_cluster(cluster_name=party.party_id, broker_url=broker_url, broker_url_tls=broker_url_tls).ok:
+                            LOGGER.debug(
+                                "pulsar cluster with name: %s, broker_url: %s updated", party.party_id, broker_url)
+                        else:
+                            error_message = "unable to create pulsar cluster: %s".format(
+                                party.party_id)
+                            LOGGER.error(error_message)
+                            # I amd little bit torn here, so I just decide to leave this alone.
+                            raise Exception(error_message)
+
+                        # update tenant
+                        tenant_info = self._pulsar_manager.get_tenant(
+                            DEFAULT_TENANT).json()
+                        if party.party_id not in tenant_info['allowedClusters']:
+                            tenant_info['allowedClusters'].append(
+                                party.party_id)
+                            if self._pulsar_manager.update_tenant(DEFAULT_TENANT, tenant_info.get('admins', []), tenant_info.get('allowedClusters',)).ok:
+                                LOGGER.debug(
+                                    'successfully update tenant with cluster: %s', party.party_id)
+                            else:
+                                raise Exception('unable to update tenant')
 
                 # init pulsar namespace
                 namespaces = self._pulsar_manager.get_namespace(
