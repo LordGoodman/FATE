@@ -80,7 +80,8 @@ class MQChannel(object):
     @connection_retry
     def basic_publish(self, body, properties):
         self._get_channel()
-        LOGGER.debug(f"send queue: {self._send_topic}")
+        LOGGER.debug('send queue: {}'.format(
+            self._producer_send.topic()))
         LOGGER.debug(f"send data: {body}")
         self._producer_send.send(content=body, properties=properties)
 

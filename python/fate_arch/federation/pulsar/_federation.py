@@ -344,9 +344,15 @@ class Federation(FederationABC):
                 # init pulsar namespace
                 namespaces = self._pulsar_manager.get_namespace(
                     DEFAULT_TENANT).json()
+                # create namespace
                 if f"{DEFAULT_TENANT}/{self._session_id}" not in namespaces:
+                    # append target cluster to the pulsaar namespace
+                    policy = {
+                        'replication_clusters': [party.party_id, DEFAULT_CLUSTER]
+                    }
+
                     code = self._pulsar_manager.create_namespace(
-                        DEFAULT_TENANT, self._session_id).status_code
+                        DEFAULT_TENANT, self._session_id, policies=policy).status_code
                     # according to https://pulsar.apache.org/admin-rest-api/?version=2.7.0&apiversion=v2#operation/getPolicies
                     # return 409 if existed
                     # return 204 if ok
@@ -356,6 +362,20 @@ class Federation(FederationABC):
                     else:
                         raise Exception(
                             "unable to create pulsar namespace with status code: {}".format(code))
+                # update party to namespace
+                elif party.party_id not in namespaces.get('replication_clusters'):
+                    clusters = namespaces.get(
+                        'replication_clusters').append(party.party_id)
+                    if self._pulsar_manager.set_clusters_to_namespace(DEFAULT_TENANT, self._session_id, clusters).ok:
+                        LOGGER.debug(
+                            'successfully set clusters: {}  to pulsar namespace: {}'.format(
+                                clusters, self._session_id)
+                        )
+                    else:
+                        raise Exception(
+                            'unable to update clusters: {} to pulsar namespaces: {}'.format(
+                                clusters, self._session_id)
+                        )
 
                 self._topic_map[topic_key] = topic_pair
                 # TODO: check federated queue status
