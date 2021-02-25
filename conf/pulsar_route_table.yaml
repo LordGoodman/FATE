@@ -1,6 +1,8 @@
 9999:
   host: 192.168.0.4
-  port: 6650 
+  port: 6650
+  sslPort: 6651
 10000:
   host: 192.168.0.3
   port: 6650
+  sslPort: 6651

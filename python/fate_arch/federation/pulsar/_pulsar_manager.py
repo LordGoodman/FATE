@@ -65,57 +65,42 @@ class PulsarManager():
             self.service_url + CLUSTER.format(cluster_name))
         return response
 
-    def _construct_cluster_data(self, service_url: str, broker_url: str,
-                                proxy_url: str = '', proxy_protocol: str = "SNI", peer_cluster_names: list = [],
-                                enable_tls: bool = False):
-        protol = 'http://'
-
-        cluster_urls = {
-            'service_url': 'serviceUrl',
-            'broker_url': 'brokerServiceUrl',
-        }
-
-        if enable_tls:
-            for k, v in cluster_urls.items():
-                service_urls[k] = cluster_urls[k]+'Tls'
-            protol = 'https://'
-
+    # service_url need to provide "http://" prefix
+    def create_cluster(self, cluster_name: str, service_url: str, broker_url: str,
+                       service_url_tls: str = '', broker_url_tls: str = '',
+                       proxy_url: str = '', proxy_protocol: str = "SNI", peer_cluster_names: list = [],
+                       ):
         # initialize data
         data = {
-            cluster_urls['service_url']: service_url,
-            cluster_urls['broker_url']: broker_url,
-            'peerClusterNames': peer_cluster_names
+            'serviceUrl': service_url,
+            'serviceUrlTls': service_url,
+            'brokerServiceUrl': service_url_tls,
+            'brokerServiceUrlTls': broker_url_tls,
+            'peerClusterNames': peer_cluster_names,
+            'proxyServiceUrl': proxy_url,
+            'proxyProtocol': proxy_protocol
         }
-
-        if proxy_url != '':
-            data.update({
-                'proxyServiceUrl': proxy_url,
-                'proxyProtocol': proxy_protocol
-            })
-        return data
-
-    # service_url not need to provide "http://" prefix
-    def create_cluster(self, cluster_name: str, broker_url: str, service_url: str = '',
-                       proxy_url: str = '', proxy_protocol: str = "SNI", peer_cluster_names: list = [],
-                       enable_tls: bool = False):
-
-        data = self._construct_cluster_data(service_url, broker_url,
-                                            proxy_url, proxy_protocol, peer_cluster_names,
-                                            enable_tls)
 
         session = self._create_session()
 
         response = session.put(
             self.service_url + CLUSTER.format(cluster_name), data=json.dumps(data))
-        return response
+        return responsee
 
-    def update_cluster(self, cluster_name: str,  broker_url: str, service_url: str = '',
+    def update_cluster(self, cluster_name: str, service_url: str, broker_url: str,
+                       service_url_tls: str = '', broker_url_tls: str = '',
                        proxy_url: str = '', proxy_protocol: str = "SNI", peer_cluster_names: list = [],
-                       enable_tls: bool = False):
-
-        data = self._construct_cluster_data(service_url, broker_url,
-                                            proxy_url, proxy_protocol, peer_cluster_names,
-                                            enable_tls)
+                       ):
+        # initialize data
+        data = {
+            'serviceUrl': service_url,
+            'serviceUrlTls': service_url,
+            'brokerServiceUrl': service_url_tls,
+            'brokerServiceUrlTls': broker_url_tls,
+            'peerClusterNames': peer_cluster_names,
+            'proxyServiceUrl': proxy_url,
+            'proxyProtocol': proxy_protocol
+        }
 
         session = self._create_session()
 

@@ -306,12 +306,18 @@ class Federation(FederationABC):
                         int(party.party_id)).get("host")
                     port = self._mq.route_table.get(
                         int(party.party_id)).get("port")
-                    broker_url = f"{host}:{port}"
 
-                    if self._pulsar_manager.create_cluster(cluster_name=party.party_id, broker_url=broker_url).ok:
+                    sslPort = self._mq.route_table.get(
+                        int(party.party_id).get("sslPort")
+                    )
+
+                    broker_url = f"pulsar://{host}:{port}"
+                    broker_url_tls = f"pulsar+ssl://{host}:{port}"
+
+                    if self._pulsar_manager.create_cluster(cluster_name=party.party_id, broker_url=broker_url, broker_url_tls=broker_url_tls).ok:
                         LOGGER.debug(
                             "pulsar cluster with name: %s, broker_url: %s crated", party.party_id, broker_url)
-                    elif self._pulsar_manager.update_cluster(cluster_name=party.party_id, broker_url=broker_url).ok:
+                    elif self._pulsar_manager.update_cluster(cluster_name=party.party_id, broker_url=broker_url, broker_url_tls=broker_url_tls).ok:
                         LOGGER.debug(
                             "pulsar cluster with name: %s, broker_url: %s updated", party.party_id, broker_url)
                     else:
