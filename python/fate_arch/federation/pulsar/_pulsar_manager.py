@@ -85,7 +85,7 @@ class PulsarManager():
 
         response = session.put(
             self.service_url + CLUSTER.format(cluster_name), data=json.dumps(data))
-        return responsee
+        return response
 
     def update_cluster(self, cluster_name: str,  broker_url: str, service_url: str = '',
                        service_url_tls: str = '', broker_url_tls: str = '',
