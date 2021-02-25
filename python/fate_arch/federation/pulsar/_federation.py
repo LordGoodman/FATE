@@ -302,9 +302,9 @@ class Federation(FederationABC):
                     # init pulsar cluster
                     cluster = self._pulsar_manager.get_cluster(
                         party.party_id).json()
-                    if cluster.get('brokerServiceUrl') is None and cluster.get('brokerServiceUrlTls') is None:
+                    if cluster.get('brokerServiceUrl', '') == '' and cluster.get('brokerServiceUrlTls', '') == '':
                         LOGGER.debug(
-                            "pulsar cluster with name %s does not exist, creating...", party.party_id)
+                            "pulsar cluster with name %s does not exist or broker url is empty, creating...", party.party_id)
                         host = self._mq.route_table.get(
                             int(party.party_id)).get('host')
                         port = self._mq.route_table.get(
@@ -314,7 +314,7 @@ class Federation(FederationABC):
                             int(party.party_id)).get('sslPort', '6651')
 
                         broker_url = f"pulsar://{host}:{port}"
-                        broker_url_tls = f"pulsar+ssl://{host}:{port}"
+                        broker_url_tls = f"pulsar+ssl://{host}:{sslPort}"
 
                         if self._pulsar_manager.create_cluster(cluster_name=party.party_id, broker_url=broker_url, broker_url_tls=broker_url_tls).ok:
                             LOGGER.debug(
@@ -329,17 +329,17 @@ class Federation(FederationABC):
                             # I amd little bit torn here, so I just decide to leave this alone.
                             raise Exception(error_message)
 
-                        # update tenant
-                        tenant_info = self._pulsar_manager.get_tenant(
-                            DEFAULT_TENANT).json()
-                        if party.party_id not in tenant_info['allowedClusters']:
-                            tenant_info['allowedClusters'].append(
-                                party.party_id)
-                            if self._pulsar_manager.update_tenant(DEFAULT_TENANT, tenant_info.get('admins', []), tenant_info.get('allowedClusters',)).ok:
-                                LOGGER.debug(
-                                    'successfully update tenant with cluster: %s', party.party_id)
-                            else:
-                                raise Exception('unable to update tenant')
+                    # update tenant
+                    tenant_info = self._pulsar_manager.get_tenant(
+                        DEFAULT_TENANT).json()
+                    if party.party_id not in tenant_info['allowedClusters']:
+                        tenant_info['allowedClusters'].append(
+                            party.party_id)
+                        if self._pulsar_manager.update_tenant(DEFAULT_TENANT, tenant_info.get('admins', []), tenant_info.get('allowedClusters',)).ok:
+                            LOGGER.debug(
+                                'successfully update tenant with cluster: %s', party.party_id)
+                        else:
+                            raise Exception('unable to update tenant')
 
                 # init pulsar namespace
                 namespaces = self._pulsar_manager.get_namespace(

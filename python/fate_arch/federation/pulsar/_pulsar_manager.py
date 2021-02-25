@@ -74,7 +74,7 @@ class PulsarManager():
         data = {
             'serviceUrl': service_url,
             'serviceUrlTls': service_url,
-            'brokerServiceUrl': service_url_tls,
+            'brokerServiceUrl': broker_url,
             'brokerServiceUrlTls': broker_url_tls,
             'peerClusterNames': peer_cluster_names,
             'proxyServiceUrl': proxy_url,
@@ -95,7 +95,7 @@ class PulsarManager():
         data = {
             'serviceUrl': service_url,
             'serviceUrlTls': service_url,
-            'brokerServiceUrl': service_url_tls,
+            'brokerServiceUrl': broker_url,
             'brokerServiceUrlTls': broker_url_tls,
             'peerClusterNames': peer_cluster_names,
             'proxyServiceUrl': proxy_url,
