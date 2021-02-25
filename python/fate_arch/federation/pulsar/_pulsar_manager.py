@@ -66,7 +66,7 @@ class PulsarManager():
         return response
 
     # service_url need to provide "http://" prefix
-    def create_cluster(self, cluster_name: str, service_url: str, broker_url: str,
+    def create_cluster(self, cluster_name: str,  broker_url: str, service_url: str = '',
                        service_url_tls: str = '', broker_url_tls: str = '',
                        proxy_url: str = '', proxy_protocol: str = "SNI", peer_cluster_names: list = [],
                        ):
@@ -87,7 +87,7 @@ class PulsarManager():
             self.service_url + CLUSTER.format(cluster_name), data=json.dumps(data))
         return responsee
 
-    def update_cluster(self, cluster_name: str, service_url: str, broker_url: str,
+    def update_cluster(self, cluster_name: str,  broker_url: str, service_url: str = '',
                        service_url_tls: str = '', broker_url_tls: str = '',
                        proxy_url: str = '', proxy_protocol: str = "SNI", peer_cluster_names: list = [],
                        ):
