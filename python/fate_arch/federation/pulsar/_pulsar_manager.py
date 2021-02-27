@@ -161,7 +161,7 @@ class PulsarManager():
     def set_clusters_to_namespace(self, tenant: str, namespace: str, clusters: list):
         session = self._create_session()
         response = session.post(
-            self.service_url + 'namespaces/{}/{}/replication'.format(tenant, namespace), data=clusters
+            self.service_url + 'namespaces/{}/{}/replication'.format(tenant, namespace), json=clusters
         )
 
         return response
