@@ -95,10 +95,6 @@ class MQChannel(object):
         LOGGER.debug('receive topic: {}'.format(
             self._consumer_receive.topic()))
         message = self._consumer_receive.receive()
-        # receive heartbeat, fetch again
-        if message.data() == b'':
-            self._consumer_receive.acknowledge(message)
-            message = self._consumer_receive.receive()
         return message
 
     @connection_retry
@@ -113,6 +109,7 @@ class MQChannel(object):
 
     @connection_retry
     def _get_channel(self):
+        self._clear()
         self._conn = pulsar.Client(
             'pulsar://{}:{}'.format(self._host, self._port))
 
