@@ -113,42 +113,42 @@ class MQChannel(object):
 
     @connection_retry
     def _get_channel(self, check_alive_type):
-        if self._check_alive(check_alive_type):
-            return
-        else:
-            LOGGER.debug(
-                "trigger clean, cleaning"
-            )
-            self._clear()
+        # if self._check_alive(check_alive_type):
+        #    return
+        # else:
+        #    LOGGER.debug(
+        #        "trigger clean, cleaning"
+        #    )
+        # self._clear()
 
-        if not self._conn:
-            self._conn = pulsar.Client(
-                'pulsar://{}:{}'.format(self._host, self._port))
+        # if not self._conn:
+        self._conn = pulsar.Client(
+            'pulsar://{}:{}'.format(self._host, self._port))
 
         # TODO: it is little bit dangerous to pass _extra_args here ;)
         # TODO: find a batter way to avoid pairs
-            self._producer_send = self._conn.create_producer(TOPIC_PREFIX.format(self._namespace, self._send_topic),
-                                                             producer_name=UNIQUE_PRODUCER_NAME,
-                                                             message_routing_mode=_pulsar.PartitionsRoutingMode.UseSinglePartition,
-                                                             initial_sequence_id=self._sequence_id,
-                                                             **self._producer_config)
+        self._producer_send = self._conn.create_producer(TOPIC_PREFIX.format(self._namespace, self._send_topic),
+                                                         producer_name=UNIQUE_PRODUCER_NAME,
+                                                         message_routing_mode=_pulsar.PartitionsRoutingMode.UseSinglePartition,
+                                                         initial_sequence_id=self._sequence_id,
+                                                         **self._producer_config)
 
-            '''
-            self._consumer_send = self._conn.subscribe(TOPIC_PREFIX.format(self._namespace, self._send_topic),
-                                                       subscription_name=DEFAULT_SUBSCRIPTION_NAME,
-                                                       consumer_name=UNIQUE_CONSUMER_NAME,
-                                                       **self._consumer_config)
+        '''
+        self._consumer_send = self._conn.subscribe(TOPIC_PREFIX.format(self._namespace, self._send_topic),
+                                                   subscription_name=DEFAULT_SUBSCRIPTION_NAME,
+                                                   consumer_name=UNIQUE_CONSUMER_NAME,
+                                                   **self._consumer_config)
 
-            self._producer_receive = self._conn.create_producer(TOPIC_PREFIX.format(self._namespace, self._receive_topic),
-                                                                producer_name=UNIQUE_PRODUCER_NAME,
-                                                                **self._producer_config)
-            '''
+        self._producer_receive = self._conn.create_producer(TOPIC_PREFIX.format(self._namespace, self._receive_topic),
+                                                            producer_name=UNIQUE_PRODUCER_NAME,
+                                                            **self._producer_config)
+        '''
 
-            self._consumer_receive = self._conn.subscribe(TOPIC_PREFIX.format(self._namespace, self._receive_topic),
-                                                          subscription_name=DEFAULT_SUBSCRIPTION_NAME,
-                                                          consumer_name=UNIQUE_CONSUMER_NAME,
-                                                          initial_position=_pulsar.InitialPosition.Earliest,
-                                                          **self._consumer_config)
+        self._consumer_receive = self._conn.subscribe(TOPIC_PREFIX.format(self._namespace, self._receive_topic),
+                                                      subscription_name=DEFAULT_SUBSCRIPTION_NAME,
+                                                      consumer_name=UNIQUE_CONSUMER_NAME,
+                                                      initial_position=_pulsar.InitialPosition.Earliest,
+                                                      **self._consumer_config)
 
     def _clear(self):
         try:
