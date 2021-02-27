@@ -138,7 +138,7 @@ class MQChannel(object):
             self._consumer_receive = self._conn.subscribe(TOPIC_PREFIX.format(self._namespace, self._receive_topic),
                                                           subscription_name=DEFAULT_SUBSCRIPTION_NAME,
                                                           consumer_name=UNIQUE_CONSUMER_NAME,
-                                                          # initial_position=_pulsar.InitialPosition.Earliest,
+                                                          initial_position=_pulsar.InitialPosition.Earliest,
                                                           **self._consumer_config)
 
     def _clear(self):
