@@ -96,9 +96,9 @@ class MQChannel(object):
             self._consumer_receive.topic()))
         message = self._consumer_receive.receive()
         # receive heartbeat, fetch again
-        if message.data == b'':
+        if message.data() == b'':
             self._consumer_receive.acknowledge(message)
-            message = self._consumer_receive.receive() 
+            message = self._consumer_receive.receive()
         return message
 
     @connection_retry
