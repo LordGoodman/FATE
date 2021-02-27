@@ -340,7 +340,7 @@ class Federation(FederationABC):
                                 'successfully update tenant with cluster: %s', party.party_id)
                         else:
                             raise Exception('unable to update tenant')
-                        
+
                 # TODO: remove this for the loop
                 # init pulsar namespace
                 namespaces = self._pulsar_manager.get_namespace(
@@ -365,7 +365,8 @@ class Federation(FederationABC):
                             "unable to create pulsar namespace with status code: {}".format(code))
                 # update party to namespace
                 else:
-                    clusters =self._pulsar_manager.get_cluster_from_namespace(DEFAULT_TENANT, self._session_id).json()
+                    clusters = self._pulsar_manager.get_cluster_from_namespace(
+                        DEFAULT_TENANT, self._session_id).json()
                     if party.party_id not in clusters:
                         clusters.append(party.party_id)
                         if self._pulsar_manager.set_clusters_to_namespace(DEFAULT_TENANT, self._session_id, clusters).ok:
@@ -455,10 +456,12 @@ class Federation(FederationABC):
             LOGGER.debug(
                 f"[pulsar._receive_obj] properties: {properties}.")
 
-            # should not happend in pulsar
             if properties['message_id'] != name or properties['correlation_id'] != tag:
                 LOGGER.warning(
                     f"[pulsar._receive_obj] require {name}.{tag}, got {properties['message_id']}.{properties['correlation_id']}")
+                # just ack and continue
+                channel_info.basic_ack(message)
+                continue
 
             cache_key = self._get_message_cache_key(
                 properties['message_id'], properties['correlation_id'], party_id, role)
