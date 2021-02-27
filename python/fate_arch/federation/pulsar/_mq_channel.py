@@ -81,7 +81,7 @@ class MQChannel(object):
 
     @connection_retry
     def basic_publish(self, body, properties):
-        self._get_channel()
+        self._get_channel(check_alive_type='producer')
         LOGGER.debug('send queue: {}'.format(
             self._producer_send.topic()))
         LOGGER.debug(f"send data: {body}")
@@ -90,7 +90,7 @@ class MQChannel(object):
 
     @connection_retry
     def consume(self):
-        self._get_channel()
+        self._get_channel(check_alive_type='consumer')
         # since consumer and topic are one to one corresponding, maybe it is ok to use unique subscription name?
         LOGGER.debug('receive topic: {}'.format(
             self._consumer_receive.topic()))
@@ -99,17 +99,17 @@ class MQChannel(object):
 
     @connection_retry
     def basic_ack(self, message):
-        self._get_channel()
+        self._get_channel(check_alive_type='consumer')
         return self._consumer_receive.acknowledge(message)
 
     @connection_retry
     def cancel(self):
-        self._get_channel()
+        self._get_channel(check_alive_type='consumer')
         return self._consumer_receive.close()
 
     @connection_retry
-    def _get_channel(self):
-        if self._check_alive():
+    def _get_channel(self, check_alive_type):
+        if self._check_alive(check_alive_type):
             return
         else:
             LOGGER.debug(
@@ -160,12 +160,14 @@ class MQChannel(object):
             self._producer_send = None
             self._consumer_receive = None
 
-    def _check_alive(self):
+    def _check_alive(self, check_alive_type):
         # a tricky way to check alive ;)
         try:
             self._conn.get_topic_partitions('test-alive')
-            self._consumer_receive.topic()
-            self._producer_send.topic()
+            if check_alive_type == 'producer':
+                self._producer_send.send('')
+            if check_alive_type == 'consumer':
+                self._consumer_receive.receive(timeout_millis=50)
             return True
         except Exception as e:
             LOGGER.debug('error happend in check alive: %s', e)
