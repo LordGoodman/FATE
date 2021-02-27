@@ -165,7 +165,8 @@ class MQChannel(object):
         try:
             self._conn.get_topic_partitions('test-alive')
             if check_alive_type == 'producer':
-                self._producer_send.send('')
+                # only way to check the availablity of producer
+                self._producer_send.send(b'')
             if check_alive_type == 'consumer':
                 self._consumer_receive.receive(timeout_millis=50)
             return True
