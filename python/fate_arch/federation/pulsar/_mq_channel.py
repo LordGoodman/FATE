@@ -95,6 +95,10 @@ class MQChannel(object):
         LOGGER.debug('receive topic: {}'.format(
             self._consumer_receive.topic()))
         message = self._consumer_receive.receive()
+        # receive heartbeat, fetch again
+        if message.data == b'':
+            self._consumer_receive.acknowledge(message)
+            message = self._consumer_receive.receive() 
         return message
 
     @connection_retry
