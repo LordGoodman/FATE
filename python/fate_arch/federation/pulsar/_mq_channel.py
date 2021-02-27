@@ -65,6 +65,8 @@ class MQChannel(object):
         self._producer_receive = None
         self._consumer_receive = None
 
+        self._sequence_id = None
+
         self._producer_config = {}
         if extra_args.get('producer') is not None:
             self._producer_config.update(extra_args['producer'])
@@ -84,6 +86,7 @@ class MQChannel(object):
             self._producer_send.topic()))
         LOGGER.debug(f"send data: {body}")
         self._producer_send.send(content=body, properties=properties)
+        self._sequence_id = self._producer_send.last_sequence_id()
 
     @connection_retry
     def consume(self):
@@ -122,6 +125,8 @@ class MQChannel(object):
         # TODO: find a batter way to avoid pairs
             self._producer_send = self._conn.create_producer(TOPIC_PREFIX.format(self._namespace, self._send_topic),
                                                              producer_name=UNIQUE_PRODUCER_NAME,
+                                                             message_routing_mode=_pulsar.PartitionsRoutingMode.UseSinglePartition,
+                                                             initial_sequence_id=self._sequence_id,
                                                              **self._producer_config)
 
             '''
@@ -159,7 +164,8 @@ class MQChannel(object):
         # a tricky way to check alive ;)
         try:
             self._conn.get_topic_partitions('test-alive')
-            self._consumer_receive.receive(timeout_millis=10)
+            self._consumer_receive.get_topic()
+            self._producer_send.get_topic()
             return True
         except Exception as e:
             LOGGER.debug('error happend in check alive: %s', e)
