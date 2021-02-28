@@ -82,10 +82,9 @@ class MQChannel(object):
 
         try:
             self._producer_send.send(content=body, properties=properties)
-        except Exception as e:
+        except Exception:
             self._producer_send = None
             # propogate exception to upper level
-            raise e
 
     @connection_retry
     def consume(self):
@@ -97,9 +96,8 @@ class MQChannel(object):
         try:
             message = self._consumer_receive.receive()
             return message
-        except Exception as e:
+        except Exception:
             self._consumer_receive = None
-            raise e
 
     @connection_retry
     def basic_ack(self, message):
@@ -107,9 +105,8 @@ class MQChannel(object):
         try:
             self._consumer_receive.acknowledge(message)
             return
-        except Exception as e:
+        except Exception:
             self._consumer_receive = None
-            raise e
 
     @connection_retry
     def cancel(self):
