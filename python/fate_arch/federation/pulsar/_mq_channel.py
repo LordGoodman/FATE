@@ -112,8 +112,11 @@ class MQChannel(object):
     def cancel(self):
         # self._get_or_create_consumer()
         # self._get_or_create_producer()
-        self._consumer_receive.close()
-        self._producer_send.close()
+        try:
+            self._consumer_receive.close()
+            self._producer_send.close()
+        except Exception as e:
+            LOGGER.debug('meet {} when trying to close topic'.format(e))
 
     @connection_retry
     def _get_or_create_producer(self):
