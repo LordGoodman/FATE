@@ -58,8 +58,10 @@ class MQChannel(object):
 
         # "_channel" is the subscriptor for the topic
         self._producer_send = None
+        self._producer_conn = None
 
         self._consumer_receive = None
+        self._consumer_conn = None
 
         self._producer_config = {}
         if extra_args.get('producer') is not None:
@@ -113,30 +115,30 @@ class MQChannel(object):
     @connection_retry
     def _get_or_create_producer(self):
         if self._check_producer_alive() != True:
-            connection = pulsar.Client(
+            self._producer_conn = pulsar.Client(
                 'pulsar://{}:{}'.format(self._host, self._port))
 
             # TODO: it is little bit dangerous to pass _extra_args here ;)
             # TODO: find a batter way to avoid pairs
-            self._producer_send = connection.create_producer(TOPIC_PREFIX.format(self._namespace, self._send_topic),
-                                                             producer_name=UNIQUE_PRODUCER_NAME,
-                                                             # message_routing_mode=_pulsar.PartitionsRoutingMode.UseSinglePartition,
-                                                             # initial_sequence_id=self._sequence_id,
-                                                             **self._producer_config)
+            self._producer_send = self._producer_conn.create_producer(TOPIC_PREFIX.format(self._namespace, self._send_topic),
+                                                                      producer_name=UNIQUE_PRODUCER_NAME,
+                                                                      # message_routing_mode=_pulsar.PartitionsRoutingMode.UseSinglePartition,
+                                                                      # initial_sequence_id=self._sequence_id,
+                                                                      **self._producer_config)
 
     @connection_retry
     def _get_or_create_consumer(self):
         if self._check_consumer_alive() != True:
-            connection = pulsar.Client(
+            self._consumer_conn = pulsar.Client(
                 'pulsar://{}:{}'.format(self._host, self._port))
 
             # TODO: it is little bit dangerous to pass _extra_args here ;)
             # TODO: find a batter way to avoid pairs
-            self._consumer_receive = connection.subscribe(TOPIC_PREFIX.format(self._namespace, self._receive_topic),
-                                                          subscription_name=DEFAULT_SUBSCRIPTION_NAME,
-                                                          consumer_name=UNIQUE_CONSUMER_NAME,
-                                                          initial_position=_pulsar.InitialPosition.Earliest,
-                                                          **self._consumer_config)
+            self._consumer_receive = self._consumer_conn.subscribe(TOPIC_PREFIX.format(self._namespace, self._receive_topic),
+                                                                   subscription_name=DEFAULT_SUBSCRIPTION_NAME,
+                                                                   consumer_name=UNIQUE_CONSUMER_NAME,
+                                                                   initial_position=_pulsar.InitialPosition.Earliest,
+                                                                   **self._consumer_config)
 
     def _check_producer_alive(self):
         try:
