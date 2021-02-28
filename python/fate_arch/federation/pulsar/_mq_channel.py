@@ -92,10 +92,10 @@ class MQChannel(object):
         LOGGER.debug('receive topic: {}'.format(
             self._consumer_receive.topic()))
 
-        message = self._consumer_receive.receive()
+        message = self._consumer_receive.receive(timeout_millis=500)
         if message.data() == b'':
             self._consumer_receive.acknowledge(message)
-            message = self._consumer_receive.receive()
+            message = self._consumer_receive.receive(timeout_millis=500)
 
         self._latest_confirmed = message
         return message
@@ -157,7 +157,7 @@ class MQChannel(object):
     def _check_consumer_alive(self):
         try:
             self._consumer_conn.get_topic_partitions("test-alive")
-            message = self._consumer_receive.receive(timeout_millis=10)
+            message = self._consumer_receive.receive(timeout_millis=500)
             self._consumer_receive.negative_acknowledge(message)
             # self._consumer_receive.acknowledge_cumulative(self._latest_confirmed)
             # self._consumer_receive.negative_acknowledge(message)
