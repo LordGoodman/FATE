@@ -32,7 +32,9 @@ def connection_retry(func):
             try:
                 res = func(self, *args, **kwargs)
                 break
-            except Exception:
+            except Exception as e:
+                LOGGER.debug(e)
+
                 time.sleep(0.1)
         return res
     return wrapper
