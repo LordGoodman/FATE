@@ -115,6 +115,7 @@ class MQChannel(object):
         except Exception as e:
             LOGGER.debug('meet {} when trying to close topic'.format(e))
 
+    @connection_retry
     def _get_or_create_producer(self):
         if self._check_producer_alive() != True:
             self._producer_conn = pulsar.Client(
@@ -128,7 +129,7 @@ class MQChannel(object):
                                                                       # message_routing_mode=_pulsar.PartitionsRoutingMode.UseSinglePartition,
                                                                       # initial_sequence_id=self._sequence_id,
                                                                       **self._producer_config)
-
+    @connection_retry
     def _get_or_create_consumer(self):
         if self._check_consumer_alive() != True:
             self._consumer_conn = pulsar.Client(
