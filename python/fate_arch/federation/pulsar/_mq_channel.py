@@ -32,9 +32,7 @@ def connection_retry(func):
             try:
                 res = func(self, *args, **kwargs)
                 break
-            except Exception as e:
-                LOGGER.debug("function %s error" %
-                             func.__name__, exc_info=True)
+            except Exception:
                 time.sleep(0.1)
         return res
     return wrapper
@@ -92,10 +90,7 @@ class MQChannel(object):
         LOGGER.debug('receive topic: {}'.format(
             self._consumer_receive.topic()))
 
-        message = self._consumer_receive.receive(timeout_millis=10000)
-        if message.data() == b'':
-            self._consumer_receive.acknowledge(message)
-            message = self._consumer_receive.receive(timeout_millis=10000)
+        message = self._consumer_receive.receive(timeout_millis=3000)
 
         self._latest_confirmed = message
         return message
@@ -113,8 +108,8 @@ class MQChannel(object):
         # self._get_or_create_consumer()
         # self._get_or_create_producer()
         try:
-            self._consumer_receive.close()
-            self._producer_send.close()
+            self._consumer_conn.close()
+            self._producer_conn.close()
         except Exception as e:
             LOGGER.debug('meet {} when trying to close topic'.format(e))
 
@@ -127,7 +122,7 @@ class MQChannel(object):
             # TODO: find a batter way to avoid pairs
             self._producer_send = self._producer_conn.create_producer(TOPIC_PREFIX.format(self._namespace, self._send_topic),
                                                                       producer_name=UNIQUE_PRODUCER_NAME,
-                                                                      send_timeout_millis=300,
+                                                                      send_timeout_millis=500,
                                                                       # message_routing_mode=_pulsar.PartitionsRoutingMode.UseSinglePartition,
                                                                       # initial_sequence_id=self._sequence_id,
                                                                       **self._producer_config)
@@ -148,7 +143,6 @@ class MQChannel(object):
     def _check_producer_alive(self):
         try:
             self._producer_conn.get_topic_partitions("test-alive")
-            self._producer_send.send(b'')
             return True
         except Exception:
             if self._producer_conn is not None:
@@ -158,8 +152,6 @@ class MQChannel(object):
     def _check_consumer_alive(self):
         try:
             self._consumer_conn.get_topic_partitions("test-alive")
-            message = self._consumer_receive.receive(timeout_millis=10000)
-            self._consumer_receive.negative_acknowledge(message)
             # self._consumer_receive.acknowledge_cumulative(self._latest_confirmed)
             # self._consumer_receive.negative_acknowledge(message)
             return True
