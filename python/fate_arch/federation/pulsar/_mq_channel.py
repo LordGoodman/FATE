@@ -110,6 +110,7 @@ class MQChannel(object):
         self._consumer_receive.close()
         self._producer_send.close()
 
+    @connection_retry
     def _get_or_create_producer(self):
         if self._producer_send is None:
             connection = pulsar.Client(
@@ -125,6 +126,7 @@ class MQChannel(object):
         else:
             self._check_producer_alive()
 
+    @connection_retry
     def _get_or_create_consumer(self):
         if self._consumer_receive is None:
             connection = pulsar.Client(
