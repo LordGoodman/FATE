@@ -80,11 +80,7 @@ class MQChannel(object):
             self._producer_send.topic()))
         LOGGER.debug(f"send data: {body}")
 
-        try:
-            self._producer_send.send(content=body, properties=properties)
-        except Exception:
-            self._producer_send = None
-            # propogate exception to upper level
+        self._producer_send.send(content=body, properties=properties)
 
     @connection_retry
     def consume(self):
@@ -93,20 +89,19 @@ class MQChannel(object):
         LOGGER.debug('receive topic: {}'.format(
             self._consumer_receive.topic()))
 
-        try:
+        message = self._consumer_receive.receive()
+        if message.data() == b'':
+            self._consumer_receive.acknowledge(message)
             message = self._consumer_receive.receive()
-            return message
-        except Exception:
-            self._consumer_receive = None
+        return message
 
     @connection_retry
     def basic_ack(self, message):
         self._get_or_create_consumer()
         try:
             self._consumer_receive.acknowledge(message)
-            return
-        except Exception:
-            self._consumer_receive = None
+        except:
+            self._consumer_receive.negative_acknowledge(message)
 
     @connection_retry
     def cancel(self):
@@ -127,6 +122,8 @@ class MQChannel(object):
                                                              message_routing_mode=_pulsar.PartitionsRoutingMode.UseSinglePartition,
                                                              # initial_sequence_id=self._sequence_id,
                                                              **self._producer_config)
+        else:
+            self._check_producer_alive()
 
     def _get_or_create_consumer(self):
         if self._consumer_receive is None:
@@ -140,6 +137,8 @@ class MQChannel(object):
                                                           consumer_name=UNIQUE_CONSUMER_NAME,
                                                           initial_position=_pulsar.InitialPosition.Earliest,
                                                           **self._consumer_config)
+        else:
+            self._check_consumer_alive()
 
     def _get_channel(self):
         self._clear()
@@ -174,16 +173,15 @@ class MQChannel(object):
             self._producer_send = None
             self._consumer_receive = None
 
-    def _check_alive(self, check_alive_type):
-        # a tricky way to check alive ;)
+    def _check_consumer_alive(self):
         try:
-            self._conn.get_topic_partitions('test-alive')
-            if check_alive_type == 'producer':
-                # only way to check the availablity of producer
-                self._producer_send.send(b'')
-            if check_alive_type == 'consumer':
-                self._consumer_receive.receive(timeout_millis=50)
-            return True
-        except Exception as e:
-            LOGGER.debug('error happend in check alive: %s', e)
-            return False
+            self._producer_send.send(b'')
+        except Exception:
+            self._producer_send = None
+
+    def _check_producer_alive(self):
+        try:
+            message = self._consumer_receive.receive()
+            self._consumer_receive.negative_acknowledge(message)
+        except Exception:
+            self._consumer_receive = None
