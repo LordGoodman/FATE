@@ -112,7 +112,7 @@ class MQChannel(object):
 
     @connection_retry
     def _get_or_create_producer(self):
-        if self._producer_send is None:
+        if self._check_producer_alive() != True:
             connection = pulsar.Client(
                 'pulsar://{}:{}'.format(self._host, self._port))
 
@@ -120,15 +120,13 @@ class MQChannel(object):
             # TODO: find a batter way to avoid pairs
             self._producer_send = connection.create_producer(TOPIC_PREFIX.format(self._namespace, self._send_topic),
                                                              producer_name=UNIQUE_PRODUCER_NAME,
-                                                             message_routing_mode=_pulsar.PartitionsRoutingMode.UseSinglePartition,
+                                                             # message_routing_mode=_pulsar.PartitionsRoutingMode.UseSinglePartition,
                                                              # initial_sequence_id=self._sequence_id,
                                                              **self._producer_config)
-        else:
-            self._check_producer_alive()
 
     @connection_retry
     def _get_or_create_consumer(self):
-        if self._consumer_receive is None:
+        if self._check_consumer_alive() != True:
             connection = pulsar.Client(
                 'pulsar://{}:{}'.format(self._host, self._port))
 
@@ -139,51 +137,18 @@ class MQChannel(object):
                                                           consumer_name=UNIQUE_CONSUMER_NAME,
                                                           initial_position=_pulsar.InitialPosition.Earliest,
                                                           **self._consumer_config)
-        else:
-            self._check_consumer_alive()
-
-    def _get_channel(self):
-        self._clear()
-        self._conn = pulsar.Client(
-            'pulsar://{}:{}'.format(self._host, self._port))
-
-        # TODO: it is little bit dangerous to pass _extra_args here ;)
-        # TODO: find a batter way to avoid pairs
-        self._producer_send = self._conn.create_producer(TOPIC_PREFIX.format(self._namespace, self._send_topic),
-                                                         producer_name=UNIQUE_PRODUCER_NAME,
-                                                         message_routing_mode=_pulsar.PartitionsRoutingMode.UseSinglePartition,
-                                                         initial_sequence_id=self._sequence_id,
-                                                         **self._producer_config)
-
-        self._consumer_receive = self._conn.subscribe(TOPIC_PREFIX.format(self._namespace, self._receive_topic),
-                                                      subscription_name=DEFAULT_SUBSCRIPTION_NAME,
-                                                      consumer_name=UNIQUE_CONSUMER_NAME,
-                                                      initial_position=_pulsar.InitialPosition.Earliest,
-                                                      **self._consumer_config)
-
-    def _clear(self):
-        try:
-            if self._conn is not None:
-                self._conn.close()
-            self._conn = None
-            self._producer_send = None
-            self._consumer_receive = None
-
-        except Exception as e:
-            LOGGER.exception(e)
-            self._conn = None
-            self._producer_send = None
-            self._consumer_receive = None
 
     def _check_producer_alive(self):
         try:
             self._producer_send.send(b'')
+            return True
         except Exception:
-            self._producer_send = None
+            return False
 
     def _check_consumer_alive(self):
         try:
             message = self._consumer_receive.receive()
             self._consumer_receive.negative_acknowledge(message)
+            return True
         except Exception:
-            self._consumer_receive = None
+            return False
