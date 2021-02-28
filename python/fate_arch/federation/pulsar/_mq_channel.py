@@ -96,7 +96,7 @@ class MQChannel(object):
         if message.data() == b'':
             self._consumer_receive.acknowledge(message)
             message = self._consumer_receive.receive()
-        
+
         self._latest_confirmed = message
         return message
 
@@ -118,7 +118,6 @@ class MQChannel(object):
         except Exception as e:
             LOGGER.debug('meet {} when trying to close topic'.format(e))
 
-    @connection_retry
     def _get_or_create_producer(self):
         if self._check_producer_alive() != True:
             self._producer_conn = pulsar.Client(
@@ -132,7 +131,6 @@ class MQChannel(object):
                                                                       # initial_sequence_id=self._sequence_id,
                                                                       **self._producer_config)
 
-    @connection_retry
     def _get_or_create_consumer(self):
         if self._check_consumer_alive() != True:
             self._consumer_conn = pulsar.Client(
@@ -159,8 +157,10 @@ class MQChannel(object):
     def _check_consumer_alive(self):
         try:
             self._consumer_conn.get_topic_partitions("test-alive")
-            self._consumer_receive.acknowledge_cumulative(self._latest_confirmed)
-            #self._consumer_receive.negative_acknowledge(message)
+            message = self._consumer_receive.receive()
+            self._consumer_receive.negative_acknowledge(message)
+            # self._consumer_receive.acknowledge_cumulative(self._latest_confirmed)
+            # self._consumer_receive.negative_acknowledge(message)
             return True
         except Exception:
             if self._consumer_conn is not None:
