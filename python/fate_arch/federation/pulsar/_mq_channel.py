@@ -62,6 +62,7 @@ class MQChannel(object):
 
         self._consumer_receive = None
         self._consumer_conn = None
+        self._latest_confirmed = None
 
         self._producer_config = {}
         if extra_args.get('producer') is not None:
@@ -95,6 +96,8 @@ class MQChannel(object):
         if message.data() == b'':
             self._consumer_receive.acknowledge(message)
             message = self._consumer_receive.receive()
+        
+        self._latest_confirmed = message
         return message
 
     @connection_retry
@@ -142,15 +145,19 @@ class MQChannel(object):
 
     def _check_producer_alive(self):
         try:
+            self._producer_conn.get_topic_partitions("test-alive")
             self._producer_send.send(b'')
             return True
         except Exception:
+            self._producer_conn.close()
             return False
 
     def _check_consumer_alive(self):
         try:
-            message = self._consumer_receive.receive()
-            self._consumer_receive.negative_acknowledge(message)
+            self._consumer_conn.get_topic_partitions("test-alive")
+            self._consumer_receive.acknowledge_cumulative(self._latest_confirmed)
+            #self._consumer_receive.negative_acknowledge(message)
             return True
         except Exception:
+            self._consumer_conn.close()
             return False
