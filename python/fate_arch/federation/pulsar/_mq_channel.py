@@ -157,7 +157,7 @@ class MQChannel(object):
     def _check_consumer_alive(self):
         try:
             self._consumer_conn.get_topic_partitions("test-alive")
-            message = self._consumer_receive.receive(timeout_millis=500)
+            message = self._consumer_receive.receive(timeout_millis=10)
             self._consumer_receive.negative_acknowledge(message)
             # self._consumer_receive.acknowledge_cumulative(self._latest_confirmed)
             # self._consumer_receive.negative_acknowledge(message)
