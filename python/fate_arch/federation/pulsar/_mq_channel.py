@@ -152,6 +152,8 @@ class MQChannel(object):
             LOGGER.debug('catch {}, closing producer client'.format(e))
             if self._producer_conn is not None:
                 self._producer_conn.close()
+            self._producer_conn = None
+            self._producer_send = None
             return False
 
     def _check_consumer_alive(self):
@@ -165,4 +167,6 @@ class MQChannel(object):
             LOGGER.debug('catch {}, closing consumer client'.format(e))
             if self._consumer_conn is not None:
                 self._consumer_conn.close()
+            self._consumer_conn = None
+            self._consumer_receive = None
             return False
