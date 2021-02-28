@@ -33,7 +33,7 @@ def connection_retry(func):
                 res = func(self, *args, **kwargs)
                 break
             except Exception as e:
-                LOGGER.error("function %s error" %
+                LOGGER.debug("function %s error" %
                              func.__name__, exc_info=True)
                 time.sleep(0.1)
         return res
@@ -92,10 +92,10 @@ class MQChannel(object):
         LOGGER.debug('receive topic: {}'.format(
             self._consumer_receive.topic()))
 
-        message = self._consumer_receive.receive(timeout_millis=500)
+        message = self._consumer_receive.receive(timeout_millis=10000)
         if message.data() == b'':
             self._consumer_receive.acknowledge(message)
-            message = self._consumer_receive.receive(timeout_millis=500)
+            message = self._consumer_receive.receive(timeout_millis=10000)
 
         self._latest_confirmed = message
         return message
@@ -157,7 +157,7 @@ class MQChannel(object):
     def _check_consumer_alive(self):
         try:
             self._consumer_conn.get_topic_partitions("test-alive")
-            message = self._consumer_receive.receive(timeout_millis=500)
+            message = self._consumer_receive.receive(timeout_millis=10000)
             self._consumer_receive.negative_acknowledge(message)
             # self._consumer_receive.acknowledge_cumulative(self._latest_confirmed)
             # self._consumer_receive.negative_acknowledge(message)
