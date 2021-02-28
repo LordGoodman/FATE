@@ -118,17 +118,21 @@ class MQChannel(object):
     @connection_retry
     def _get_or_create_producer(self):
         if self._check_producer_alive() != True:
-            self._producer_conn = pulsar.Client(
-                'pulsar://{}:{}'.format(self._host, self._port))
+            try:
+                self._producer_conn = pulsar.Client(
+                    'pulsar://{}:{}'.format(self._host, self._port))
 
-            # TODO: it is little bit dangerous to pass _extra_args here ;)
-            # TODO: find a batter way to avoid pairs
-            self._producer_send = self._producer_conn.create_producer(TOPIC_PREFIX.format(self._namespace, self._send_topic),
-                                                                      producer_name=UNIQUE_PRODUCER_NAME,
-                                                                      send_timeout_millis=500,
-                                                                      # message_routing_mode=_pulsar.PartitionsRoutingMode.UseSinglePartition,
-                                                                      # initial_sequence_id=self._sequence_id,
-                                                                      **self._producer_config)
+                # TODO: it is little bit dangerous to pass _extra_args here ;)
+                # TODO: find a batter way to avoid pairs
+                self._producer_send = self._producer_conn.create_producer(TOPIC_PREFIX.format(self._namespace, self._send_topic),
+                                                                          producer_name=UNIQUE_PRODUCER_NAME,
+                                                                          send_timeout_millis=500,
+                                                                          # message_routing_mode=_pulsar.PartitionsRoutingMode.UseSinglePartition,
+                                                                          # initial_sequence_id=self._sequence_id,
+                                                                          **self._producer_config)
+            except Exception as e:
+                LOGGER.debug('why {} happend here'.format(e))
+                
     @connection_retry
     def _get_or_create_consumer(self):
         if self._check_consumer_alive() != True:
