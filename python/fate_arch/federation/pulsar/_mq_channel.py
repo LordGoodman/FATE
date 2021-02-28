@@ -173,13 +173,13 @@ class MQChannel(object):
             self._producer_send = None
             self._consumer_receive = None
 
-    def _check_consumer_alive(self):
+    def _check_producer_alive(self):
         try:
             self._producer_send.send(b'')
         except Exception:
             self._producer_send = None
 
-    def _check_producer_alive(self):
+    def _check_consumer_alive(self):
         try:
             message = self._consumer_receive.receive()
             self._consumer_receive.negative_acknowledge(message)
