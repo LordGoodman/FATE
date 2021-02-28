@@ -149,7 +149,8 @@ class MQChannel(object):
             self._producer_send.send(b'')
             return True
         except Exception:
-            self._producer_conn.close()
+            if self._producer_conn is not None:
+                self._producer_conn.close()
             return False
 
     def _check_consumer_alive(self):
@@ -159,5 +160,6 @@ class MQChannel(object):
             #self._consumer_receive.negative_acknowledge(message)
             return True
         except Exception:
-            self._consumer_conn.close()
+            if self._consumer_conn is not None:
+                self._consumer_conn.close()
             return False
