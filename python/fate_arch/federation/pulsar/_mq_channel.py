@@ -127,6 +127,7 @@ class MQChannel(object):
             # TODO: find a batter way to avoid pairs
             self._producer_send = self._producer_conn.create_producer(TOPIC_PREFIX.format(self._namespace, self._send_topic),
                                                                       producer_name=UNIQUE_PRODUCER_NAME,
+                                                                      send_timeout_millis=300,
                                                                       # message_routing_mode=_pulsar.PartitionsRoutingMode.UseSinglePartition,
                                                                       # initial_sequence_id=self._sequence_id,
                                                                       **self._producer_config)
