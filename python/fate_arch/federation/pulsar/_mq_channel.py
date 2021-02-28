@@ -145,6 +145,7 @@ class MQChannel(object):
     def _check_producer_alive(self):
         try:
             self._producer_conn.get_topic_partitions("test-alive")
+            self._producer_send.send(b'')
             return True
         except Exception:
             if self._producer_conn is not None:

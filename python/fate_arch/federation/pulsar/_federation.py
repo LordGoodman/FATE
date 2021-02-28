@@ -451,8 +451,13 @@ class Federation(FederationABC):
         while True:
             message = channel_info.consume()
             # return None indicates the client is closed
-            properties = message.properties()
             body = message.data()
+
+            if body == b'':
+                channel_info.basic_ack(message)
+                continue
+
+            properties = message.properties()
             LOGGER.debug(
                 f"[pulsar._receive_obj] properties: {properties}.")
 
