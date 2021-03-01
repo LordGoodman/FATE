@@ -62,6 +62,8 @@ class MQChannel(object):
 
         self._consumer_receive = None
         self._consumer_conn = None
+
+        self._sequence_id = None
         self._latest_confirmed = None
 
         self._producer_config = {}
@@ -84,6 +86,7 @@ class MQChannel(object):
         LOGGER.debug(f"send data: {body}")
 
         self._producer_send.send(content=body, properties=properties)
+        self._sequence_id = self._producer_send.last_sequence_id()
 
     @connection_retry
     def consume(self):
