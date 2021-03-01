@@ -555,8 +555,6 @@ class Federation(FederationABC):
 
         while True:
             message = channel_info.consume()
-            if message is None:
-                break
             properties = message.properties()
             # must get bytes
             body = message.data().decode()
