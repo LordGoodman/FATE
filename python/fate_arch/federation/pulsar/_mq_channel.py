@@ -131,7 +131,7 @@ class MQChannel(object):
 
             self._producer_send = self._producer_conn.create_producer(TOPIC_PREFIX.format(self._namespace, self._send_topic),
                                                                       producer_name=UNIQUE_PRODUCER_NAME,
-                                                                      send_timeout_millis=1500,
+                                                                      send_timeout_millis=500,
                                                                       initial_sequence_id=self._sequence_id,
                                                                       **self._producer_config)
 
