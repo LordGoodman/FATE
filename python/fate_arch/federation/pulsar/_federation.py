@@ -556,6 +556,7 @@ class Federation(FederationABC):
         while True:
             message = channel_info.consume()
             if message is None:
+                print('!!!fail into rabbit hole!!!!')
                 break
             properties = message.properties()
             # must get bytes

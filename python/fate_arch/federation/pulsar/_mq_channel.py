@@ -95,12 +95,13 @@ class MQChannel(object):
         LOGGER.debug('receive topic: {}'.format(
             self._consumer_receive.topic()))
 
-        message = self._consumer_receive.receive(timeout_millis=30000)
+        message = self._consumer_receive.receive()
 
         # handle empty message from healthy check
         if message.data() == b'':
+            LOGGER.debug('found empty byte')
             self.basic_ack(message)
-            message = self._consumer_receive.receive(timeout_millis=30000)
+            message = self._consumer_receive.receive()
 
         self._latest_confirmed = message
         return message
