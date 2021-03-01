@@ -168,7 +168,7 @@ class MQChannel(object):
     def _check_producer_alive(self):
         try:
             self._producer_conn.get_topic_partitions("test-alive")
-            self._producer_send.send(b'')
+            self._producer_send.flush()
             return True
         except Exception as e:
             LOGGER.debug('catch {}, closing producer client'.format(e))
@@ -186,7 +186,7 @@ class MQChannel(object):
         try:
             self._consumer_conn.get_topic_partitions("test-alive")
             #message = self._consumer_receive.receive(timeout_millis=3000)
-            self._consumer_receive.acknowledge_cumulative(
+            self._consumer_receive.acknowledge(
                 self._latest_confirmed)
             return True
         except Exception as e:
