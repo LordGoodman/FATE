@@ -95,22 +95,24 @@ class MQChannel(object):
         LOGGER.debug('receive topic: {}'.format(
             self._consumer_receive.topic()))
 
-        message = self._consumer_receive.receive()
+        message = self._consumer_receive.receive(timeout_millis=300)
 
         # handle empty message from healthy check
         if message.data() == b'':
             LOGGER.debug('found empty byte')
             self.basic_ack(message)
-            message = self._consumer_receive.receive()
+            message = self._consumer_receive.receive(timeout_millis=300)
 
         self._latest_confirmed = message
+
+            
         return message
 
     @connection_retry
     def basic_ack(self, message):
         self._get_or_create_consumer()
         try:
-            self._consumer_receive.acknowledge_cumulative(message)
+            self._consumer_receive.acknowledge(message)
         except:
             self._consumer_receive.negative_acknowledge(message)
 
