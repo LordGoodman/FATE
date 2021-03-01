@@ -109,7 +109,7 @@ class MQChannel(object):
     def basic_ack(self, message):
         self._get_or_create_consumer()
         try:
-            self._consumer_receive.acknowledge(message)
+            self._consumer_receive.acknowledge_cumulative(message)
         except:
             self._consumer_receive.negative_acknowledge(message)
 
@@ -185,7 +185,7 @@ class MQChannel(object):
     def _check_consumer_alive(self):
         try:
             self._consumer_conn.get_topic_partitions("test-alive")
-            #message = self._consumer_receive.receive(timeout_millis=3000)
+            # self._consumer_receive.receive(timeout_millis=100000)
             self._consumer_receive.acknowledge_cumulative(
                 self._latest_confirmed)
             return True
