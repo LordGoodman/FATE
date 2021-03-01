@@ -185,11 +185,14 @@ class MQChannel(object):
     def _check_consumer_alive(self):
         try:
             self._consumer_conn.get_topic_partitions("test-alive")
-            # self._consumer_receive.receive(timeout_millis=100000)
-            self._consumer_receive.acknowledge_cumulative(
-                self._latest_confirmed)
+            # just check alive
+            self._consumer_receive.receive(timeout_millis=1)
+            #self._consumer_receive.acknowledge_cumulative(
+            #    self._latest_confirmed)
             return True
         except Exception as e:
+            if 'TimeOut' in str(e):
+                return True
             LOGGER.debug('catch {}, closing consumer client'.format(e))
             if self._consumer_conn is not None:
                 try:
