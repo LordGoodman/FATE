@@ -92,7 +92,12 @@ class MQChannel(object):
         LOGGER.debug('receive topic: {}'.format(
             self._consumer_receive.topic()))
 
-        message = self._consumer_receive.receive(timeout_millis=3000)
+        message = self._consumer_receive.receive(timeout_millis=30000)
+
+        # handle empty message from healthy check
+        if message.data() == b'':
+            self.basic_ack(message)
+            message = self._consumer_receive.receive(timeout_millis=30000)
 
         self._latest_confirmed = message
         return message
@@ -119,25 +124,22 @@ class MQChannel(object):
     def _get_or_create_producer(self):
         if self._check_producer_alive() != True:
             self._producer_conn = pulsar.Client(
-                'pulsar://{}:{}'.format(self._host, self._port))
+                service_url='pulsar://{}:{}'.format(self._host, self._port),
+                operation_timeout_seconds=3)
 
-            # TODO: it is little bit dangerous to pass _extra_args here ;)
-            # TODO: find a batter way to avoid pairs
             self._producer_send = self._producer_conn.create_producer(TOPIC_PREFIX.format(self._namespace, self._send_topic),
                                                                       producer_name=UNIQUE_PRODUCER_NAME,
-                                                                      send_timeout_millis=500,
-                                                                      # message_routing_mode=_pulsar.PartitionsRoutingMode.UseSinglePartition,
-                                                                      # initial_sequence_id=self._sequence_id,
+                                                                      send_timeout_millis=1500,
+                                                                      initial_sequence_id=self._sequence_id,
                                                                       **self._producer_config)
 
     @connection_retry
     def _get_or_create_consumer(self):
         if self._check_consumer_alive() != True:
             self._consumer_conn = pulsar.Client(
-                'pulsar://{}:{}'.format(self._host, self._port))
+                service_url='pulsar://{}:{}'.format(self._host, self._port),
+                operation_timeout_seconds=3)
 
-            # TODO: it is little bit dangerous to pass _extra_args here ;)
-            # TODO: find a batter way to avoid pairs
             self._consumer_receive = self._consumer_conn.subscribe(TOPIC_PREFIX.format(self._namespace, self._receive_topic),
                                                                    subscription_name=DEFAULT_SUBSCRIPTION_NAME,
                                                                    consumer_name=UNIQUE_CONSUMER_NAME,
@@ -160,15 +162,17 @@ class MQChannel(object):
     def _check_consumer_alive(self):
         try:
             self._consumer_conn.get_topic_partitions("test-alive")
-            message = self._consumer_receive.receive(timeout_millis=3000)
-            LOGGER.debug("RECEIVE {}".format(message.data))
-            # self._consumer_receive.acknowledge_cumulative(self._latest_confirmed)
-            # self._consumer_receive.negative_acknowledge(message)
+            #message = self._consumer_receive.receive(timeout_millis=3000)
+            self._consumer_receive.acknowledge_cumulative(
+                self._latest_confirmed)
             return True
         except Exception as e:
             LOGGER.debug('catch {}, closing consumer client'.format(e))
             if self._consumer_conn is not None:
-                self._consumer_conn.close()
+                try:
+                    self._consumer_conn.close()
+                except Exception:
+                    pass
             self._consumer_conn = None
             self._consumer_receive = None
             return False
