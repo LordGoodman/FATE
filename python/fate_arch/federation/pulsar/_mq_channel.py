@@ -124,8 +124,8 @@ class MQChannel(object):
 
     @connection_retry
     def _get_or_create_producer(self):
-        # if self._check_producer_alive() != True:
-        if self._producer_conn is None:
+        if self._check_producer_alive() != True:
+            # if self._producer_conn is None:
             try:
                 self._producer_conn = pulsar.Client(
                     service_url='pulsar://{}:{}'.format(
@@ -134,20 +134,20 @@ class MQChannel(object):
             except Exception:
                 self._producer_conn = None
 
-        # alway used current client to fetch producer
-        try:
-            self._producer_send = self._producer_conn.create_producer(TOPIC_PREFIX.format(self._namespace, self._send_topic),
-                                                                      producer_name=UNIQUE_PRODUCER_NAME,
-                                                                      # send_timeout_millis=500,
-                                                                      # initial_sequence_id=self._sequence_id,
-                                                                      **self._producer_config)
-        except Exception:
-            self._producer_conn = None
+            # alway used current client to fetch producer
+            try:
+                self._producer_send = self._producer_conn.create_producer(TOPIC_PREFIX.format(self._namespace, self._send_topic),
+                                                                          producer_name=UNIQUE_PRODUCER_NAME,
+                                                                          # send_timeout_millis=500,
+                                                                          # initial_sequence_id=self._sequence_id,
+                                                                          **self._producer_config)
+            except Exception:
+                self._producer_conn = None
 
     @connection_retry
     def _get_or_create_consumer(self):
-        # if self._check_consumer_alive() != True:
-        if self._consumer_conn is None:
+        if self._check_consumer_alive() != True:
+            # if self._consumer_conn is None:
             try:
                 self._consumer_conn = pulsar.Client(
                     service_url='pulsar://{}:{}'.format(
@@ -156,14 +156,14 @@ class MQChannel(object):
             except Exception:
                 self._consumer_conn = None
 
-        try:
-            self._consumer_receive = self._consumer_conn.subscribe(TOPIC_PREFIX.format(self._namespace, self._receive_topic),
-                                                                   subscription_name=DEFAULT_SUBSCRIPTION_NAME,
-                                                                   consumer_name=UNIQUE_CONSUMER_NAME,
-                                                                   initial_position=_pulsar.InitialPosition.Earliest,
-                                                                   **self._consumer_config)
-        except Exception:
-            self._consumer_conn = None
+            try:
+                self._consumer_receive = self._consumer_conn.subscribe(TOPIC_PREFIX.format(self._namespace, self._receive_topic),
+                                                                       subscription_name=DEFAULT_SUBSCRIPTION_NAME,
+                                                                       consumer_name=UNIQUE_CONSUMER_NAME,
+                                                                       initial_position=_pulsar.InitialPosition.Earliest,
+                                                                       **self._consumer_config)
+            except Exception:
+                self._consumer_conn = None
 
     def _check_producer_alive(self):
         try:
