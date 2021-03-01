@@ -162,8 +162,8 @@ class MQChannel(object):
                                                                    consumer_name=UNIQUE_CONSUMER_NAME,
                                                                    initial_position=_pulsar.InitialPosition.Earliest,
                                                                    **self._consumer_config)
-        except:
-            self._consumer_config = None
+        except Exception:
+            self._consumer_conn = None
 
     def _check_producer_alive(self):
         try:
