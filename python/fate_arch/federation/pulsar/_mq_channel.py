@@ -157,7 +157,11 @@ class MQChannel(object):
         except Exception as e:
             LOGGER.debug('catch {}, closing producer client'.format(e))
             if self._producer_conn is not None:
-                self._producer_conn.close()
+                try:
+                    self._producer_conn.close()
+                except Exception:
+                    pass
+
             self._producer_conn = None
             self._producer_send = None
             return False
