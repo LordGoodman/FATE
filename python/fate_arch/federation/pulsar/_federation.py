@@ -348,8 +348,12 @@ class Federation(FederationABC):
                 # create namespace
                 if f"{DEFAULT_TENANT}/{self._session_id}" not in namespaces:
                     # append target cluster to the pulsaar namespace
+                    clusters = [DEFAULT_CLUSTER]
+                    if self._mq.route_table.get(int(party.party_id)).get('local', False) != True:
+                        clusters.append(party.party_id)
+
                     policy = {
-                        'replication_clusters': [party.party_id, DEFAULT_CLUSTER]
+                        'replication_clusters': clusters
                     }
 
                     code = self._pulsar_manager.create_namespace(
@@ -365,20 +369,21 @@ class Federation(FederationABC):
                             "unable to create pulsar namespace with status code: {}".format(code))
                 # update party to namespace
                 else:
-                    clusters = self._pulsar_manager.get_cluster_from_namespace(
-                        DEFAULT_TENANT, self._session_id).json()
-                    if party.party_id not in clusters:
-                        clusters.append(party.party_id)
-                        if self._pulsar_manager.set_clusters_to_namespace(DEFAULT_TENANT, self._session_id, clusters).ok:
-                            LOGGER.debug(
-                                'successfully set clusters: {}  to pulsar namespace: {}'.format(
-                                    clusters, self._session_id)
-                            )
-                        else:
-                            raise Exception(
-                                'unable to update clusters: {} to pulsar namespaces: {}'.format(
-                                    clusters, self._session_id)
-                            )
+                    if self._mq.route_table.get(int(party.party_id)).get('local', False) != True:
+                        clusters = self._pulsar_manager.get_cluster_from_namespace(
+                            DEFAULT_TENANT, self._session_id).json()
+                        if party.party_id not in clusters:
+                            clusters.append(party.party_id)
+                            if self._pulsar_manager.set_clusters_to_namespace(DEFAULT_TENANT, self._session_id, clusters).ok:
+                                LOGGER.debug(
+                                    'successfully set clusters: {}  to pulsar namespace: {}'.format(
+                                        clusters, self._session_id)
+                                )
+                            else:
+                                raise Exception(
+                                    'unable to update clusters: {} to pulsar namespaces: {}'.format(
+                                        clusters, self._session_id)
+                                )
 
                 self._topic_map[topic_key] = topic_pair
                 # TODO: check federated queue status
