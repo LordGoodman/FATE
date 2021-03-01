@@ -113,7 +113,6 @@ class MQChannel(object):
         except:
             self._consumer_receive.negative_acknowledge(message)
 
-    @connection_retry
     def cancel(self):
         # self._get_or_create_consumer()
         # self._get_or_create_producer()
