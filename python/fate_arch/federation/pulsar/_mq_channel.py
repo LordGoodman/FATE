@@ -95,14 +95,8 @@ class MQChannel(object):
         LOGGER.debug('receive topic: {}'.format(
             self._consumer_receive.topic()))
 
-        message = self._consumer_receive.receive(timeout_millis=30000)
+        message = self._consumer_receive.receive()
 
-        # handle empty message from healthy check
-        if message.data() == b'':
-            self.basic_ack(message)
-            message = self._consumer_receive.receive(timeout_millis=30000)
-
-        self._latest_confirmed = message
         return message
 
     @connection_retry
@@ -110,6 +104,7 @@ class MQChannel(object):
         self._get_or_create_consumer()
         try:
             self._consumer_receive.acknowledge(message)
+            self._latest_confirmed = message
         except:
             self._consumer_receive.negative_acknowledge(message)
 
