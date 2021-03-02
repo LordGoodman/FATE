@@ -115,7 +115,7 @@ class MQChannel(object):
             self._consumer_conn.close()
             self._producer_conn.close()
         except Exception as e:
-            LOGGER.debug('meet {} when trying to close topic'.format(e))
+            LOGGER.debug('meet {} when trying to close client'.format(e))
 
     @connection_retry
     def _get_or_create_producer(self):
@@ -134,7 +134,7 @@ class MQChannel(object):
                 self._producer_send = self._producer_conn.create_producer(TOPIC_PREFIX.format(self._namespace, self._send_topic),
                                                                           producer_name=UNIQUE_PRODUCER_NAME,
                                                                           # send_timeout_millis=500,
-                                                                          # initial_sequence_id=self._sequence_id,
+                                                                          initial_sequence_id=self._sequence_id,
                                                                           **self._producer_config)
             except Exception:
                 self._producer_conn = None
