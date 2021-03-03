@@ -83,7 +83,7 @@ class MQChannel(object):
         self._get_or_create_producer()
         LOGGER.debug('send queue: {}'.format(
             self._producer_send.topic()))
-        LOGGER.debug(f"send data: {body}")
+        LOGGER.debug('send data size: {}'.format(len(body)))
 
         self._producer_send.send(content=body, properties=properties)
         self._sequence_id = self._producer_send.last_sequence_id()
@@ -133,7 +133,7 @@ class MQChannel(object):
             try:
                 self._producer_send = self._producer_conn.create_producer(TOPIC_PREFIX.format(self._namespace, self._send_topic),
                                                                           producer_name=UNIQUE_PRODUCER_NAME,
-                                                                          # send_timeout_millis=500,
+                                                                          send_timeout_millis=50000,
                                                                           initial_sequence_id=self._sequence_id,
                                                                           **self._producer_config)
             except Exception:
