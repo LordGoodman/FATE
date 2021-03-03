@@ -125,7 +125,7 @@ class MQChannel(object):
                 self._producer_conn = pulsar.Client(
                     service_url='pulsar://{}:{}'.format(
                         self._host, self._port),
-                    operation_timeout_seconds=3)
+                    operation_timeout_seconds=30)
             except Exception:
                 self._producer_conn = None
 
@@ -147,7 +147,7 @@ class MQChannel(object):
                 self._consumer_conn = pulsar.Client(
                     service_url='pulsar://{}:{}'.format(
                         self._host, self._port),
-                    operation_timeout_seconds=3)
+                    operation_timeout_seconds=30)
             except Exception:
                 self._consumer_conn = None
 
