@@ -32,7 +32,7 @@ class Upload(ComponentBase):
     def __init__(self):
         super(Upload, self).__init__()
         self.MAX_PARTITIONS = 1024
-        self.MAX_BYTES = 1024*1024*8
+        self.MAX_BYTES = 1024*1024*1024*8
         self.parameters = {}
         self.table = None
 
